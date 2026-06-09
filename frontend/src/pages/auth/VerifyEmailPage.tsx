@@ -1,18 +1,19 @@
 import { useRef, useState } from 'react';
-import type { AuthView } from '../../types/auth.ts';
 import AuthCard from '../../components/auth/AuthCard';
+import api from "../../config/axiosInstance.Config";
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 interface VerifyEmailPageProps {
   email: string;
-  onNavigate: (view: AuthView) => void;
-  onVerified: () => void;
 }
 
-export default function VerifyEmailPage({ email, onNavigate, onVerified }: VerifyEmailPageProps) {
+export default function VerifyEmailPage({ email }: VerifyEmailPageProps) {
   const [code, setCode] = useState<string[]>(Array(6).fill(''));
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const refs = useRef<(HTMLInputElement | null)[]>([]);
+  const navigate = useNavigate();
 
   function handleChange(i: number, val: string) {
     if (!/^\d?$/.test(val)) return;
@@ -27,13 +28,35 @@ export default function VerifyEmailPage({ email, onNavigate, onVerified }: Verif
   }
 
   async function handleVerify() {
-    const full = code.join('');
-    if (full.length < 6) { setError('Enter all 6 digits'); return; }
-    setError('');
-    setLoading(true);
-    await new Promise(r => setTimeout(r, 1000));
+    const otp = code.join('');
+    if (otp.length < 6) { setError('Enter all 6 digits'); return; }
+    try{
+      setLoading(true);
+      setError('');
+
+       const response = await api.post('/auth/verify-email', {
+              email,
+              otp,
+        });
+
+        console.log(response.data);
+
+        navigate("/login");
+
+    }catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      setError(
+        error.response?.data?.message || "Registration failed"
+      );
+    } else {
+      setError(
+        "Something went wrong",
+      );
+    }
+  } finally {
     setLoading(false);
-    onVerified();
+  }
+
   }
 
   return (

@@ -1,16 +1,12 @@
 import { useState } from 'react';
-import type { DeckCardData } from '../types/deck';
 import DeckCard from '../components/dashboard/DeckCard';
 import EmptyState from '../components/dashboard/EmptyState';
+import { useEndpoints } from '../context/EndpointContext';
 
-interface DashboardProps {
-  endpoints: DeckCardData[];
-  onCreateNew: () => void;
-  onOpenEndpoint: (card: DeckCardData) => void;
-  onDeleteEndpoint: (id: string) => void;
-}
 
-export default function Dashboard({ endpoints, onCreateNew, onOpenEndpoint, onDeleteEndpoint }: DashboardProps) {
+
+export default function Dashboard() {
+   const { endpoints, onCreateNew, onOpenEndpoint, onDeleteEndpoint } = useEndpoints();
   const [search, setSearch] = useState('');
   const [filterMethod, setFilterMethod] = useState<string>('ALL');
 

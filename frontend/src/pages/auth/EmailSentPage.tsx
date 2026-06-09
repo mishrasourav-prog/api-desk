@@ -1,15 +1,15 @@
 import { useState, useEffect } from 'react';
-import type { AuthView } from '../../types/auth';
 import AuthCard from '../../components/auth/AuthCard';
+import { useNavigate } from 'react-router-dom';
 
 interface EmailSentPageProps {
   email: string;
-  onNavigate: (view: AuthView) => void;
 }
 
-export default function EmailSentPage({ email, onNavigate }: EmailSentPageProps) {
+export default function EmailSentPage({ email}: EmailSentPageProps) {
   const [countdown, setCountdown] = useState(60);
   const [canResend, setCanResend] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const t = setInterval(() => {
@@ -55,7 +55,7 @@ export default function EmailSentPage({ email, onNavigate }: EmailSentPageProps)
       </button>
 
       <div className="text-center mt-4">
-        <button onClick={() => onNavigate('login')} className="text-[#58a6ff] hover:underline text-[11px] flex items-center gap-1 mx-auto">
+        <button onClick={() => navigate("/login")} className="text-[#58a6ff] hover:underline text-[11px] flex items-center gap-1 mx-auto">
           <i className="ti ti-arrow-left text-xs" aria-hidden="true" /> Back to sign in
         </button>
       </div>

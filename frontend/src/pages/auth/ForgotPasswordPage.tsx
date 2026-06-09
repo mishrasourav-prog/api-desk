@@ -1,19 +1,15 @@
 import { useState } from 'react';
 import type {FormEvent} from 'react';
-import type { AuthView } from '../../types/auth';
 import {isValidEmail} from '../../types/auth';
 import AuthCard from '../../components/auth/AuthCard';
 import AuthInput from '../../components/auth/AuthInput';
+import { useNavigate } from 'react-router-dom';
 
-interface ForgotPasswordPageProps {
-  onNavigate: (view: AuthView) => void;
-  onEmailSent: (email: string) => void;
-}
-
-export default function ForgotPasswordPage({ onNavigate, onEmailSent }: ForgotPasswordPageProps) {
+export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -23,7 +19,7 @@ export default function ForgotPasswordPage({ onNavigate, onEmailSent }: ForgotPa
     setLoading(true);
     await new Promise(r => setTimeout(r, 1100));
     setLoading(false);
-    onEmailSent(email);
+    navigate("/email-sent");
   }
 
   return (
@@ -62,7 +58,7 @@ export default function ForgotPasswordPage({ onNavigate, onEmailSent }: ForgotPa
       </form>
 
       <div className="text-center mt-4">
-        <button onClick={() => onNavigate('login')} className="text-[#58a6ff] hover:underline text-[11px] flex items-center gap-1 mx-auto">
+        <button onClick={() => navigate("/login")} className="text-[#58a6ff] hover:underline text-[11px] flex items-center gap-1 mx-auto">
           <i className="ti ti-arrow-left text-xs" aria-hidden="true" /> Back to sign in
         </button>
       </div>

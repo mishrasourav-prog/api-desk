@@ -1,25 +1,27 @@
 import { useState } from 'react';
 import type {FormEvent} from 'react';
-import type { AuthView } from '../../types/auth.ts';
 import {isValidEmail} from '../../types/auth.ts';
 import AuthCard from '../../components/auth/AuthCard';
 import AuthBrand from '../../components/auth/AuthBrand';
 import AuthInput from '../../components/auth/AuthInput';
 import AuthDivider from '../../components/auth/AuthDivider';
 import OAuthButtons from '../../components/auth/OAuthButtons';
+import api from "../../config/axiosInstance.Config.ts";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
-interface LoginPageProps {
-  onNavigate: (view: AuthView) => void;
-  onLoginSuccess: () => void;
-}
 
-export default function LoginPage({ onNavigate, onLoginSuccess }: LoginPageProps) {
+export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string; form?: string }>({});
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+
+  const navigate = useNavigate();
+  const { onLoginSuccess } = useAuth();
 
   function validate(): boolean {
     const e: typeof errors = {};
@@ -32,15 +34,43 @@ export default function LoginPage({ onNavigate, onLoginSuccess }: LoginPageProps
   }
 
   async function handleSubmit(e: FormEvent) {
-    e.preventDefault();
-    if (!validate()) return;
-    setLoading(true);
-    await new Promise(r => setTimeout(r, 1200));
-    setLoading(false);
-    setSuccess(true);
-    setTimeout(onLoginSuccess, 800);
-  }
+  e.preventDefault();
+  if (!validate()) return;
 
+  try {
+    setLoading(true);
+    setErrors({});
+
+    const response = await api.post("/auth/login", {
+      email,
+      password,
+    });
+
+    console.log(response.data);
+
+    setSuccess(true);
+    onLoginSuccess();
+
+    // ✅ redirect to dashboard
+    setTimeout(() => {
+      console.log("NAVIGATING NOW");
+      navigate("/app/dashboard");
+    }, 800);
+
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      setErrors({
+        form: error.response?.data?.message || "Login failed",
+      });
+    } else {
+      setErrors({
+        form: "An unexpected error occurred",
+      });
+    }
+  } finally {
+    setLoading(false);
+  }
+}
   return (
     <AuthCard>
       <AuthBrand title="API-Deck" subtitle="Sign in to your developer workspace" />
@@ -92,7 +122,7 @@ export default function LoginPage({ onNavigate, onLoginSuccess }: LoginPageProps
           </label>
           <button
             type="button"
-            onClick={() => onNavigate('forgot-password')}
+            onClick={()=>navigate("/forgot-password")}
             className="text-[11px] text-[#58a6ff] hover:underline"
           >
             Forgot password?
@@ -110,7 +140,7 @@ export default function LoginPage({ onNavigate, onLoginSuccess }: LoginPageProps
 
       <p className="text-center text-[11px] text-[#6e7681] mt-4">
         Don't have an account?{' '}
-        <button onClick={() => onNavigate('register')} className="text-[#58a6ff] hover:underline">
+        <button onClick={() => navigate("/register")} className="text-[#58a6ff] hover:underline">
           Create one free
         </button>
       </p>

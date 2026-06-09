@@ -1,20 +1,19 @@
 import { useState} from 'react';
 import type {FormEvent} from 'react';
 import { getPasswordStrength } from '../../types/auth.ts';
-import type { AuthView } from '../../types/auth.ts';
 import AuthCard from '../../components/auth/AuthCard';
 import AuthInput from '../../components/auth/AuthInput';
 import PasswordStrengthMeter from '../../components/auth/PasswordStrengthMeter';
+import { useNavigate } from 'react-router-dom';
 
-interface ResetPasswordPageProps {
-  onNavigate: (view: AuthView) => void;
-}
 
-export default function ResetPasswordPage({ onNavigate }: ResetPasswordPageProps) {
+
+export default function ResetPasswordPage() {
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [errors, setErrors] = useState<{ password?: string; confirm?: string }>({});
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const checks = [
     { label: 'At least 8 characters', ok: password.length >= 8 },
@@ -39,7 +38,7 @@ export default function ResetPasswordPage({ onNavigate }: ResetPasswordPageProps
     setLoading(true);
     await new Promise(r => setTimeout(r, 1100));
     setLoading(false);
-    onNavigate('login');
+    navigate("/login");
   }
 
   return (
@@ -85,7 +84,7 @@ export default function ResetPasswordPage({ onNavigate }: ResetPasswordPageProps
       </form>
 
       <div className="text-center mt-4">
-        <button onClick={() => onNavigate('login')} className="text-[#58a6ff] hover:underline text-[11px] flex items-center gap-1 mx-auto">
+        <button onClick={() => navigate("/login")} className="text-[#58a6ff] hover:underline text-[11px] flex items-center gap-1 mx-auto">
           <i className="ti ti-arrow-left text-xs" aria-hidden="true" /> Back to sign in
         </button>
       </div>

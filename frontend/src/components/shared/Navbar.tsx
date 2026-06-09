@@ -1,12 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
+import { useAuth } from '../../context/AuthContext';
 
-interface NavbarProps {
-  onLogout: () => void;
-}
 
-export default function Navbar({ onLogout }: NavbarProps) {
+
+export default function Navbar() {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const {onLogout} = useAuth();
+ 
 
   useEffect(() => {
     function handle(e: MouseEvent) {
@@ -15,6 +16,10 @@ export default function Navbar({ onLogout }: NavbarProps) {
     document.addEventListener('mousedown', handle);
     return () => document.removeEventListener('mousedown', handle);
   }, []);
+
+  const handleLogout = () =>{
+    onLogout();
+  }
 
   return (
     <header className="h-14 w-full bg-[#0d1117] border-b border-[#30363d] px-6 flex items-center justify-between sticky top-0 z-50">
@@ -64,7 +69,7 @@ export default function Navbar({ onLogout }: NavbarProps) {
             ))}
             <div className="border-t border-[#30363d] my-1" />
             <button
-              onClick={() => { onLogout(); setOpen(false); }}
+              onClick={() => { handleLogout()}}
               className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-[#f85149] font-medium hover:bg-[#30363d] rounded transition-colors text-left"
             >
               <span>🚪</span>

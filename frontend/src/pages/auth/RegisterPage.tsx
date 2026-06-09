@@ -1,23 +1,22 @@
 import { useState} from 'react';
 import type {FormEvent} from 'react';
 import { isValidEmail, getPasswordStrength } from '../../types/auth.ts';
-import type { AuthView } from '../../types/auth.ts';
 import AuthCard from '../../components/auth/AuthCard';
 import AuthBrand from '../../components/auth/AuthBrand';
 import AuthInput from '../../components/auth/AuthInput';
 import AuthDivider from '../../components/auth/AuthDivider';
 import OAuthButtons from '../../components/auth/OAuthButtons';
 import PasswordStrengthMeter from '../../components/auth/PasswordStrengthMeter';
+import api from "../../config/axiosInstance.Config.ts";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
-interface RegisterPageProps {
-  onNavigate: (view: AuthView) => void;
-  onRegisterSuccess: (email: string) => void;
-}
 
-export default function RegisterPage({ onNavigate, onRegisterSuccess }: RegisterPageProps) {
+export default function RegisterPage() {
   const [form, setForm] = useState({ firstName: '', lastName: '', email: '', username: '', password: '', agreed: false });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm(p => ({ ...p, [k]: e.target.type === 'checkbox' ? e.target.checked : e.target.value }));
@@ -38,13 +37,40 @@ export default function RegisterPage({ onNavigate, onRegisterSuccess }: Register
   }
 
   async function handleSubmit(e: FormEvent) {
-    e.preventDefault();
-    if (!validate()) return;
+  e.preventDefault();
+
+  if (!validate()) return;
+
+  try {
     setLoading(true);
-    await new Promise(r => setTimeout(r, 1200));
+    setErrors({});
+
+    const response = await api.post("/auth/register", {
+      firstName: form.firstName,
+      lastName: form.lastName,
+      email: form.email,
+      username: form.username,
+      password: form.password,
+    });
+
+    console.log(response.data);
+
+    navigate("/login");
+
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      setErrors({
+        form: error.response?.data?.message || "Registration failed",
+      });
+    } else {
+      setErrors({
+        form: "Something went wrong",
+      });
+    }
+  } finally {
     setLoading(false);
-    onRegisterSuccess(form.email);
   }
+}
 
   return (
     <AuthCard>
@@ -57,22 +83,22 @@ export default function RegisterPage({ onNavigate, onRegisterSuccess }: Register
         <div className="grid grid-cols-2 gap-2">
           <div className="flex flex-col gap-1">
             <label className="text-[11px] text-[#8b949e] font-medium">First name</label>
-            <AuthInput icon="user" type="text" placeholder="Arjun" value={form.firstName} onChange={set('firstName')} error={errors.firstName} />
+            <AuthInput icon="user" type="text" placeholder="Alan" value={form.firstName} onChange={set('firstName')} error={errors.firstName} />
           </div>
           <div className="flex flex-col gap-1">
             <label className="text-[11px] text-[#8b949e] font-medium">Last name</label>
-            <AuthInput icon="user" type="text" placeholder="Sharma" value={form.lastName} onChange={set('lastName')} error={errors.lastName} />
+            <AuthInput icon="user" type="text" placeholder="Turing" value={form.lastName} onChange={set('lastName')} error={errors.lastName} />
           </div>
         </div>
 
         <div className="flex flex-col gap-1">
           <label className="text-[11px] text-[#8b949e] font-medium">Work email</label>
-          <AuthInput icon="mail" type="email" placeholder="arjun@company.io" value={form.email} onChange={set('email')} error={errors.email} />
+          <AuthInput icon="mail" type="email" placeholder="alan@company.io" value={form.email} onChange={set('email')} error={errors.email} />
         </div>
 
         <div className="flex flex-col gap-1">
           <label className="text-[11px] text-[#8b949e] font-medium">Username</label>
-          <AuthInput icon="at" type="text" placeholder="arjun_dev" value={form.username} onChange={set('username')} error={errors.username} hint="This becomes your mock URL namespace: api-deck.com/api/mock/username/" />
+          <AuthInput icon="at" type="text" placeholder="alan_turing" value={form.username} onChange={set('username')} error={errors.username} hint="This becomes your mock URL namespace: api-deck.com/api/mock/username/" />
         </div>
 
         <div className="flex flex-col gap-1">
@@ -102,7 +128,7 @@ export default function RegisterPage({ onNavigate, onRegisterSuccess }: Register
 
       <p className="text-center text-[11px] text-[#6e7681] mt-4">
         Already have an account?{' '}
-        <button onClick={() => onNavigate('login')} className="text-[#58a6ff] hover:underline">Sign in</button>
+        <button onClick={()=>{navigate("/login")}} className="text-[#58a6ff] hover:underline">Sign in</button>
       </p>
     </AuthCard>
   );
