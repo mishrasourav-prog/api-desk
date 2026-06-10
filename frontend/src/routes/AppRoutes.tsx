@@ -35,6 +35,8 @@ export default function AppRoutes() {
       <Route path="/email-sent" element={<EmailSentPage email={pendingEmail} />} />
       <Route path="/verify-email" element={<VerifyEmailPage email={pendingEmail} />} />
       <Route path="/maintenance" element={<MaintenancePage />} />
+      <Route path="/app/designer" element={<DeckDesigner />} />
+      <Route path="/app/designer/:id" element={<DeckDesigner />} />
       
 
 

@@ -1,23 +1,68 @@
-import { useState } from 'react';
+import { useState , useEffect } from 'react';
 import DeckCard from '../components/dashboard/DeckCard';
 import EmptyState from '../components/dashboard/EmptyState';
 import { useEndpoints } from '../context/EndpointContext';
+import api from '../config/axiosInstance.Config';
+import type { Deck } from '../types/deck';
+import { useNavigate } from 'react-router-dom';
+
+
 
 
 
 export default function Dashboard() {
-   const { endpoints, onCreateNew, onOpenEndpoint, onDeleteEndpoint } = useEndpoints();
+   const {onCreateNew} = useEndpoints();
   const [search, setSearch] = useState('');
   const [filterMethod, setFilterMethod] = useState<string>('ALL');
+  
 
-  const filtered = endpoints.filter(ep => {
-    const matchesSearch = ep.path.toLowerCase().includes(search.toLowerCase()) ||
-      (ep.description ?? '').toLowerCase().includes(search.toLowerCase());
-    const matchesMethod = filterMethod === 'ALL' || ep.method === filterMethod;
-    return matchesSearch && matchesMethod;
-  });
+  const navigate = useNavigate();
 
-  const totalCalls = endpoints.reduce((sum, ep) => sum + ep.totalCalls, 0);
+
+const [decks, setDecks] = useState<Deck[]>([]);
+
+const filtered = decks.filter(deck => {
+  const matchesSearch =
+    deck.creator.toLowerCase().includes(search.toLowerCase()) ||
+    deck.path.toLowerCase().includes(search.toLowerCase());
+
+  const matchesMethod =
+    filterMethod === "ALL" || deck.method === filterMethod;
+
+  return matchesSearch && matchesMethod;
+});
+
+useEffect(() => {
+  const fetchDecks = async () => {
+    try {
+      const response = await api.get("/deck/list");
+      console.log(response.data.decks);
+      setDecks(response.data.decks);
+      console.log("DECKS:", decks);
+
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  fetchDecks();
+}, []);
+
+const handleDelete = async (id: string) => {
+  try {
+    const response = await api.delete(`/deck/${id}`);
+
+    if (response.data.success) {
+      setDecks(prev => prev.filter(d => d._id !== id));
+    }
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+ const handleOpen = (deck: Deck) => {
+  navigate(`/app/designer/${deck._id}`);
+};
 
   return (
     <div className="flex flex-col h-full">
@@ -27,8 +72,8 @@ export default function Dashboard() {
           <div>
             <h1 className="text-[#f0f6fc] font-bold text-xl">Mock Endpoints</h1>
             <p className="text-[#8b949e] text-xs mt-0.5">
-              <span className="text-[#c9d1d9] font-semibold">{endpoints.length}</span> endpoints configured ·{' '}
-              <span className="text-[#c9d1d9] font-semibold">{totalCalls.toLocaleString()}</span> total calls
+              <span className="text-[#c9d1d9] font-semibold">{decks.length}</span> endpoints configured ·{' '}
+              {/* <span className="text-[#c9d1d9] font-semibold">{totalCalls.toLocaleString()}</span> total calls */}
             </p>
           </div>
           <button
@@ -39,7 +84,7 @@ export default function Dashboard() {
           </button>
         </div>
 
-        {/* Search + filters */}
+        
         <div className="flex items-center gap-3">
           <div className="flex-1 max-w-sm flex items-center gap-2 bg-[#0d1117] border border-[#30363d] rounded-md px-3 py-1.5 focus-within:border-[#58a6ff] transition-colors">
             <svg className="w-3.5 h-3.5 text-[#6e7681]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -73,7 +118,7 @@ export default function Dashboard() {
 
       {/* Card grid */}
       <div className="flex-1 overflow-y-auto p-6">
-        {endpoints.length === 0 ? (
+        {decks.length === 0 ? (
           <EmptyState onCreateNew={onCreateNew} />
         ) : filtered.length === 0 ? (
           <div className="text-center py-16 text-[#6e7681] text-sm">
@@ -81,14 +126,14 @@ export default function Dashboard() {
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
-            {filtered.map(ep => (
-              <DeckCard
-                key={ep.id}
-                card={ep}
-                onOpen={onOpenEndpoint}
-                onDelete={onDeleteEndpoint}
-              />
-            ))}
+          {filtered.map(deck => (
+            <DeckCard
+             key={deck._id}
+             deck={deck}
+             onDeckDeleted={handleDelete}
+             onOpen={handleOpen}
+                   />
+          ))}
           </div>
         )}
       </div>

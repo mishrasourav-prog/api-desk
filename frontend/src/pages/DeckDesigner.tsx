@@ -1,18 +1,24 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import type { HttpMethod, HttpStatus } from "../types/deck";
 import EndpointForm from "../components/designer/EndpointForm";
 import CodeEditor from "../components/shared/CodeEditor";
 import LogStream from "../components/designer/LogStream";
+import api from "../config/axiosInstance.Config";
+
 
 const DEFAULT_BODY = JSON.stringify(
-  { message: "Hello from API-Deck!", success: true },
+  {
+    message: "Hello from API-Deck!",
+    success: true,
+  },
   null,
   2
 );
 
 export default function DeckDesigner() {
   const navigate = useNavigate();
+  const { id } = useParams();
 
   const [path, setPath] = useState("");
   const [method, setMethod] = useState<HttpMethod>("GET");
@@ -20,7 +26,29 @@ export default function DeckDesigner() {
   const [body, setBody] = useState(DEFAULT_BODY);
   const [description, setDescription] = useState("");
 
+  // ---------------- EDIT MODE ----------------
+  useEffect(() => {
+    if (!id) return;
 
+    const fetchDeck = async () => {
+      try {
+        const response = await api.get(`/deck/${id}`);
+        const deck = response.data.deck;
+
+        setPath(deck.path);
+        setMethod(deck.method);
+        setStatus(deck.responseStatus);
+        setBody(deck.responseBody);
+        setDescription(deck.description || "");
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchDeck();
+  }, [id]);
+
+  // ---------------- JSON VALIDATION ----------------
   function isValidJson(str: string) {
     try {
       JSON.parse(str);
@@ -30,35 +58,59 @@ export default function DeckDesigner() {
     }
   }
 
-  async function handleSave() {
-    if (!path.trim() || !isValidJson(body)) return;
+  // ---------------- SAVE / UPDATE ----------------
+async function handleSave() {
+  if (!path.trim()) {
+    alert("Please provide a valid path.");
+    return;
+  }
 
-    try {
-      // replace with your API call
-      console.log({
-        path,
+  if (!isValidJson(body)) {
+    alert("Invalid JSON.");
+    return;
+  }
+
+  try {
+    if (id) {
+      // EDIT existing deck
+      await api.put(`/deck/${id}`, {
+        path: path.trim(),
         method,
-        status,
-        body,
+        responseStatus: Number(status),
+        responseBody: body,
         description,
       });
-
-      navigate("/app/dashboard");
-    } catch (err) {
-      console.error(err);
+    } else {
+      // CREATE new deck
+      await api.post("/deck/create", {
+        path: path.trim(),
+        method,
+        responseStatus: Number(status),
+        responseBody: body,
+        description,
+      });
     }
+
+    navigate("/app/dashboard");
+  } catch (err) {
+    console.error(err);
   }
+}
 
   return (
     <div className="flex flex-col h-full min-h-0">
+
       {/* Header */}
       <div className="px-6 py-4 border-b border-[#30363d] flex justify-between">
         <div>
           <h1 className="text-[#f0f6fc] font-bold text-lg">
-            New Mock Endpoint
+            {id ? "Edit Mock Endpoint" : "New Mock Endpoint"}
           </h1>
+
           <p className="text-[#8b949e] text-xs mt-0.5">
-            Configure a new mock endpoint
+            {id
+              ? "Update existing endpoint"
+              : "Configure a new mock endpoint"}
           </p>
         </div>
 
@@ -74,13 +126,14 @@ export default function DeckDesigner() {
             onClick={handleSave}
             className="px-4 py-2 bg-[#238636] text-white text-sm rounded-md"
           >
-            Save
+            {id ? "Update" : "Save"}
           </button>
         </div>
       </div>
 
       {/* Body */}
       <div className="flex flex-1">
+
         <div className="w-[45%] border-r border-[#30363d] p-5">
           <EndpointForm
             path={path}
@@ -99,8 +152,13 @@ export default function DeckDesigner() {
         </div>
 
         <div className="flex-1 bg-[#0d1117]">
-          <LogStream endpointPath={path || "new"} method={method} initialLogs={[]} />
+          <LogStream
+            endpointPath={path || "new"}
+            method={method}
+            initialLogs={[]}
+          />
         </div>
+
       </div>
     </div>
   );

@@ -53,3 +53,16 @@ export const STATUS_STYLE = (status: number): string => {
   if (status >= 500) return 'text-[#f85149] bg-[#f85149]/10 border border-[#da3633]';
   return 'text-[#8b949e] bg-[#8b949e]/10 border border-[#30363d]';
 };
+
+export type DeckMethod = "GET" | "POST" | "DELETE" | "PUT";
+
+export type Deck = {
+  creator: string;
+  path: string;
+  method: DeckMethod;
+  responseBody: string;
+  responseStatus: number;
+  createdAt?: string;
+  updatedAt?: string;
+  _id: string;
+};

@@ -37,6 +37,8 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
       password: hashedPassword,
     });
 
+    console.log((req as any).user);
+
     res.status(201).json({
       message: "User registered successfully",
       userId: user._id,
@@ -87,7 +89,7 @@ export const loginUser = async (
     const accessToken = jwt.sign(
       { id: user._id },
       process.env.ACCESS_TOKEN_SECRET!,
-      { expiresIn: "1m" }
+      { expiresIn: "15m" }
     );
 
   
@@ -103,7 +105,7 @@ export const loginUser = async (
   httpOnly: true,
   secure: false, 
   sameSite: "lax",
-  maxAge: 1 * 60 * 1000, // 15 min
+  maxAge: 15 * 60 * 1000, // 15 min
 });
 
 res.cookie("refreshToken", refreshToken, {
@@ -167,14 +169,14 @@ export const refreshAccessToken = async(req:Request , res:Response) => {
     const accessToken = jwt.sign(
       { id: decoded.id },
       process.env.ACCESS_TOKEN_SECRET!,
-      { expiresIn: "1m" }
+      { expiresIn: "15m" }
     );
 
      res.cookie("accessToken", accessToken, {
       httpOnly: true,
       secure: false,
       sameSite: "lax",
-      maxAge: 1 * 60 * 1000,
+      maxAge: 15 * 60 * 1000,
     });
 
       res.status(200).json({
