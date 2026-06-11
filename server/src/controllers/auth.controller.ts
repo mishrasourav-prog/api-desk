@@ -1,15 +1,16 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import {User} from "../models/user.model";
+import { ApiResponse } from "../utils/apiResponse";
+import { ApiError } from "../utils/apiError";
 
-export const registerUser = async (req: Request, res: Response): Promise<void> => {
+export const registerUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   const { username, password, email, firstName, lastName } = req.body;
 
   // validation
   if (!username || !email || !password || !firstName || !lastName) {
-    res.status(400).json({ message: "All fields are required" });
-    return;
+    return next(new ApiError(400, "All fields are required"));
   }
 
   try {
@@ -19,10 +20,7 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
     });
 
     if (existingUser) {
-      res.status(400).json({
-        message: "User already exists or username taken",
-      });
-      return;
+      return next(new ApiError(400, "User already exists or username taken"));
     }
 
     // hash password
@@ -39,39 +37,29 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
 
     console.log((req as any).user);
 
-    res.status(201).json({
-      message: "User registered successfully",
-      userId: user._id,
-    });
+    res.status(201).json(new ApiResponse(201, { userId: user._id }, "User registered successfully"));
   } catch (error) {
     console.error(error);
-    res.status(500).json({
-      message: "Internal Server Error",
-    });
+    next(error);
   }
 };
 
 export const loginUser = async (
   req: Request,
-  res: Response
+  res: Response,
+  next: NextFunction
 ): Promise<void> => {
   try {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      res.status(400).json({
-        message: "All fields are required",
-      });
-      return;
+      return next(new ApiError(400, "All fields are required"));
     }
 
     const user = await User.findOne({ email }).select("+password");
 
     if (!user) {
-      res.status(401).json({
-        message: "Invalid email or password",
-      });
-      return;
+      return next(new ApiError(401, "Invalid email or password"));
     }
 
     const isValidPassword = await bcrypt.compare(
@@ -80,10 +68,7 @@ export const loginUser = async (
     );
 
     if (!isValidPassword) {
-      res.status(401).json({
-        message: "Invalid email or password",
-      });
-      return;
+      return next(new ApiError(401, "Invalid email or password"));
     }
 
     const accessToken = jwt.sign(
@@ -115,15 +100,11 @@ res.cookie("refreshToken", refreshToken, {
   maxAge: 7 * 24 * 60 * 60 * 1000,
 });
 
-res.status(200).json({
-  message: "Login successful",
-});
+res.status(200).json(new ApiResponse(200, null, "Login successful"));
   } catch (error) {
     console.error(error);
 
-    res.status(500).json({
-      message: "Internal Server Error",
-    });
+    next(error);
   }
 };
 
@@ -146,25 +127,18 @@ res.clearCookie("refreshToken", {
  
 });
 
-  res.status(200).json({
-    success: true,
-    message: "Logged out successfully",
-  });
+  res.status(200).json(new ApiResponse(200, null, "Logged out successfully"));
 };
 
-
-export const refreshAccessToken = async(req:Request , res:Response) => {
-  try{
+export const refreshAccessToken = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
     const refreshToken = req.cookies.refreshToken;
 
-    if(!refreshToken){
-      res.status(401).json({
-        message: "No refresh token",
-      });
-      return;
+    if (!refreshToken) {
+      return next(new ApiError(401, "No refresh token"));
     }
 
-    const decoded = jwt.verify(refreshToken , process.env.REFRESH_TOKEN_SECRET!) as { id: string };
+    const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET!) as { id: string };
 
     const accessToken = jwt.sign(
       { id: decoded.id },
@@ -172,20 +146,15 @@ export const refreshAccessToken = async(req:Request , res:Response) => {
       { expiresIn: "15m" }
     );
 
-     res.cookie("accessToken", accessToken, {
+    res.cookie("accessToken", accessToken, {
       httpOnly: true,
       secure: false,
       sameSite: "lax",
       maxAge: 15 * 60 * 1000,
     });
 
-      res.status(200).json({
-      success: true,
-    });
-  } catch {
-    res.status(401).json({
-      message: "Invalid refresh token",
-    });
+    res.status(200).json(new ApiResponse(200, null, "Access token refreshed"));
+  } catch (error) {
+    next(new ApiError(401, "Invalid refresh token"));
   }
-
 };

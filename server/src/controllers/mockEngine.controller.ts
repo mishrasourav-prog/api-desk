@@ -1,59 +1,7 @@
-// import { Deck } from "../models/deck.model";
-// import { AuthRequest } from "../types/authRequest";
-// import { Response , NextFunction} from "express";
-
-// export const executeMock = async(req:AuthRequest , res:Response, next: NextFunction ) : Promise<void>=>{
-//     try{
-//          const userId = req.params[0];
-//         const deckPath = req.params[1];
-       
-//          const requestMethod = req.method as "GET" | "POST" | "DELETE" | "PUT" | "PATCH";
-//          const prefix = `/mock/${userId}/${deckPath}`;
-//         let subPath = req.originalUrl.replace(prefix, '');
-
-//         subPath = subPath.split('?')[0]; // Remove query strings
-//         if (!subPath.startsWith('/')) {
-//             subPath = '/' + subPath;
-
-
-//         }
-
-//         console.log("--- DEBUG MOCK ENGINE ---");
-// console.log("Searching for creator:", userId);
-// console.log("Searching for path:", subPath);
-// console.log("Searching for method:", requestMethod);
-
-//         const deck = await Deck.findOne({userId , basePath:deckPath});
-//         if (!deck) {
-//              res.status(404).json({ error: "Mock Deck not found." });
-//              return;
-//         }
-
-       
-
-//         const matchedRoute = await Deck.findOne({ 
-//                creator: userId, 
-//                path: subPath, 
-//                method: requestMethod 
-//         });
-
-
-//         if (!matchedRoute) {
-//                 res.status(404).json({ error: "Mock route not found." });
-//                 return;
-//         }
-//          res.status(matchedRoute.responseStatus).json(matchedRoute.responseBody);
-//          return;
-
-//     }catch (error) {
-//         next(error);
-//     }
-// } 
-
 import { Deck } from "../models/deck.model";
 import { AuthRequest } from "../types/authRequest";
-import { Response , NextFunction , } from "express";
-
+import { Response, NextFunction } from "express";
+import { ApiError } from "../utils/apiError";
 
 export const executeMock = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
@@ -68,9 +16,7 @@ export const executeMock = async (req: AuthRequest, res: Response, next: NextFun
 
         // Validation: The URL must at least have /mock/:userId/:deckPath
         if (segments.length < 3) {
-            return res.status(400).json({ 
-                error: "Malformed mock URL structure. Expected format: /mock/:userId/:deckPath/*" 
-            });
+            return next(new ApiError(400, "Malformed mock URL structure. Expected format: /mock/:userId/:deckPath/*"));
         }
 
         // 3. Extract metadata variables using structural position indices
@@ -101,9 +47,7 @@ const pathWithoutSlash = pathWithSlash.substring(1);
 
         // 6. Safe error response: Returns a controlled 404 instead of crashing the server
         if (!matchedRoute) {
-            return res.status(404).json({ 
-                error: `No mock configuration found for ${requestMethod} ${subPath}` 
-            });
+            return next(new ApiError(404, `No mock configuration found for ${requestMethod} ${subPath}`));
         }
 
         // 7. Parse and return your custom mock server response data

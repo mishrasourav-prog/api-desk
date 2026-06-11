@@ -6,10 +6,6 @@ import api from '../config/axiosInstance.Config';
 import type { Deck } from '../types/deck';
 import { useNavigate } from 'react-router-dom';
 
-
-
-
-
 export default function Dashboard() {
    const {onCreateNew} = useEndpoints();
   const [search, setSearch] = useState('');
@@ -36,8 +32,9 @@ useEffect(() => {
   const fetchDecks = async () => {
     try {
       const response = await api.get("/deck/list");
+      console.log(response.data);
       console.log(response.data.decks);
-      setDecks(response.data.decks);
+      setDecks(response.data.data.decks);
       console.log("DECKS:", decks);
 
     } catch (error) {

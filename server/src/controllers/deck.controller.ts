@@ -1,200 +1,130 @@
 import { Deck } from "../models/deck.model";
-import { Response } from "express";
+import { Response, NextFunction } from "express";
 import { AuthRequest } from "../types/authRequest";
 import { User } from "../models/user.model";
+import { ApiResponse } from "../utils/apiResponse";
+import { ApiError } from "../utils/apiError";
 
-
-export const createDeck = async(req:AuthRequest , res:Response) : Promise<void> =>{
-    try{
-
+export const createDeck = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+    try {
         if (!req.user) {
-  res.status(401).json({ message: "Unauthorized" });
-  return;
-}
+            return next(new ApiError(401, "Unauthorized"));
+        }
 
-const {id} = req.user;
+        const { id } = req.user;
         const userData = await User.findById(id);
 
         if (!userData) {
-  res.status(404).json({ message: "User not found" });
-  return;
-}
-        const creator = userData.username; 
+            return next(new ApiError(404, "User not found"));
+        }
 
-        const { path , method , responseBody , responseStatus} = req.body;
+        const creator = userData.username;
+        const { path, method, responseBody, responseStatus } = req.body;
 
-        if(!path || !method || !responseBody || !responseStatus){
-            res.status(400).json({
-                message:"Provide everything"
-                
-            })
-            return;
+        if (!path || !method || !responseBody || !responseStatus) {
+            return next(new ApiError(400, "Provide everything"));
         }
 
         const deck = await Deck.create({
-            creator:creator,
+            creator,
             path,
             method,
             responseBody,
-            responseStatus
+            responseStatus,
         });
 
-        res.status(201).json({
-            message:"Deck created succesfully",
-            deck_id: deck._id
-        });
-
-
-
-    }catch (error: any) {
+        res.status(201).json(new ApiResponse(201, { deck_id: deck._id }, "Deck created successfully"));
+    } catch (error: any) {
         if (error.code === 11000) {
-            res.status(409).json({
-                success: false,
-                message: "Routing collision! You already have an active mock endpoint registered with this exact path and method combination."
-            });
-            return;
+            return next(new ApiError(409, "Routing collision! You already have an active mock endpoint registered with this exact path and method combination."));
         }
 
-       
-        res.status(500).json({
-            success: false,
-            message: "Internal server error occurred while configuring the mock endpoint.",
-            error: error.message
-        });
+        next(error);
+    }
+};
 
-}}
-
-
-export const getUserDecks = async(req:AuthRequest , res:Response) : Promise<void>=>{
-    try{
-
+export const getUserDecks = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+    try {
         if (!req.user) {
-            res.status(401).json({ success: false, message: "Unauthorized access" });
-            return;
+            return next(new ApiError(401, "Unauthorized access"));
         }
 
         const userData = await User.findById(req.user.id);
 
         if (!userData) {
-  res.status(404).json({ success: false, message: "User not found" });
-  return;
-}
+            return next(new ApiError(404, "User not found"));
+        }
+
         const creator_name = userData.username;
+        const decks = await Deck.find({ creator: creator_name });
+        console.log(decks); // check
 
-        const decks = await Deck.find({creator:creator_name});
-        console.log(decks); //check
-
-        res.status(200).json({
-            success: true,
-            decks: decks 
-        });
-
-        
-
-    }catch (error: any) {
-        res.status(500).json({
-            success: false,
-            message: "Internal server error",
-            error: error.message
-        });
+        res.status(200).json(new ApiResponse(200, { decks }, "Decks retrieved successfully"));
+    } catch (error: any) {
+        next(error);
     }
-}
+};
 
-
-export const deleteDeck = async(req:AuthRequest , res:Response) : Promise<void> =>{
-    try{
+export const deleteDeck = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+    try {
         const { id } = req.params;
 
         if (!req.user) {
-  res.status(401).json({ success: false, message: "Unauthorized" });
-  return;
-}
+            return next(new ApiError(401, "Unauthorized"));
+        }
 
-const userData = await User.findById(req.user.id);
+        const userData = await User.findById(req.user.id);
 
-if (!userData) {
-  res.status(404).json({ success: false, message: "User not found" });
-  return;
-}
+        if (!userData) {
+            return next(new ApiError(404, "User not found"));
+        }
 
-const creator_name = userData.username;
-     
-
+        const creator_name = userData.username;
         const deletedDeck = await Deck.findOneAndDelete({
-                  _id: id,
-                   creator: creator_name
+            _id: id,
+            creator: creator_name,
         });
 
         if (!deletedDeck) {
-    res.status(404).json({
-        success: false,
-        message: "Deck not found, or you do not have permission to delete this endpoint."
-    });
-    return;
-}
+            return next(new ApiError(404, "Deck not found, or you do not have permission to delete this endpoint."));
+        }
 
-res.status(200).json({
-    success: true,
-    message: "Mock endpoint configuration successfully deleted."
-});
-
-    }catch (error: any) {
-        res.status(500).json({
-            success: false,
-            message: "Internal server error occurred while deleting the mock endpoint.",
-            error: error.message
-        });
-}}
-
-
-export const getDeckById = async (req:AuthRequest, res:Response) => {
-  try {
-    const deck = await Deck.findById(req.params.id);
-
-    if (!deck) {
-      return res.status(404).json({
-        success: false,
-        message: "Deck not found",
-      });
+        res.status(200).json(new ApiResponse(200, null, "Mock endpoint configuration successfully deleted."));
+    } catch (error: any) {
+        next(error);
     }
-
-    res.status(200).json({
-      success: true,
-      deck,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Server error",
-    });
-  }
 };
 
-export const updateDeck = async (req:AuthRequest, res:Response) => {
-  try {
-    const updatedDeck = await Deck.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      {
-        new: true,
-      }
-    );
+export const getDeckById = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+    try {
+        const deck = await Deck.findById(req.params.id);
 
-    if (!updatedDeck) {
-      return res.status(404).json({
-        success: false,
-        message: "Deck not found",
-      });
+        if (!deck) {
+            return next(new ApiError(404, "Deck not found"));
+        }
+
+        res.status(200).json(new ApiResponse(200, { deck }, "Deck retrieved successfully"));
+    } catch (error) {
+        next(error);
     }
+};
 
-    res.status(200).json({
-      success: true,
-      deck: updatedDeck,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Server error",
-    });
-  }
+export const updateDeck = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+    try {
+        const updatedDeck = await Deck.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            {
+                new: true,
+            }
+        );
+
+        if (!updatedDeck) {
+            return next(new ApiError(404, "Deck not found"));
+        }
+
+        res.status(200).json(new ApiResponse(200, { deck: updatedDeck }, "Deck updated successfully"));
+    } catch (error) {
+        next(error);
+    }
 };
