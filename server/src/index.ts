@@ -6,6 +6,7 @@ import authRoutes from "./routes/auth.routes";
 import userRoutes from "./routes/user.routes";
 import cookieParser from "cookie-parser";
 import deckRoutes from "./routes/deck.routes"
+import mockRoutes from './routes/mock.routes';
 import { sendOTPEmail } from './utils/sendEmail';
 import { Resend } from 'resend';
 dotenv.config();
@@ -27,6 +28,7 @@ connectDb();
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/deck",deckRoutes)
+app.use('/mock', mockRoutes);
 
 app.get('/', (req,res)=>{
     res.send("hello world");
