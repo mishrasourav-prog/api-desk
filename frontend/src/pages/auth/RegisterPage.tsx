@@ -46,8 +46,8 @@ export default function RegisterPage() {
     setErrors({});
 
     const response = await api.post("/auth/register", {
-      firstName: form.firstName,
-      lastName: form.lastName,
+      name: `${form.firstName} ${form.lastName}`,
+      
       email: form.email,
       username: form.username,
       password: form.password,

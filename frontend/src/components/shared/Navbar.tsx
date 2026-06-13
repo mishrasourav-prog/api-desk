@@ -1,5 +1,7 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect  } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+
 
 
 
@@ -7,6 +9,10 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const {onLogout} = useAuth();
+
+  const navigate = useNavigate();
+
+  const {user} = useAuth();
  
 
   useEffect(() => {
@@ -26,15 +32,10 @@ export default function Navbar() {
       {/* Logo */}
       <div className="flex items-center gap-2.5">
         <span className="font-mono font-bold text-lg text-[#f0f6fc] tracking-wider select-none">🏗️ API-Deck</span>
-        <span className="text-[10px] text-[#6e7681] bg-[#21262d] border border-[#30363d] rounded px-1.5 py-0.5 font-mono">v1.4.0</span>
       </div>
 
       {/* Right */}
       <div className="flex items-center gap-3" ref={ref}>
-        {/* Pro badge */}
-        <span className="text-xs bg-amber-500/10 text-amber-500 border border-amber-500/20 px-2 py-0.5 rounded-full select-none">
-          ⚡ Pro Account
-        </span>
 
         {/* Avatar */}
         <button
@@ -52,18 +53,32 @@ export default function Navbar() {
         {open && (
           <div className="absolute right-6 top-12 w-52 bg-[#21262d] border border-[#30363d] rounded-md shadow-2xl p-1 z-50 animate-in">
             <div className="px-3 py-2 border-b border-[#30363d] mb-1">
-              <p className="text-xs font-semibold text-[#f0f6fc]">Arjun Sharma</p>
-              <p className="text-[10px] text-[#6e7681]">arjun@devhq.io</p>
+              <p className="text-xs font-semibold text-[#f0f6fc]">{user?.name}</p>
+              <p className="text-[10px] text-[#6e7681]">{user?.email}</p>
             </div>
             {[
-              { icon: '⚙️', label: 'Account Settings' },
-              { icon: '🔑', label: 'Manage API Keys' },
+              { label: 'Account Settings' },
             ].map(item => (
               <button
                 key={item.label}
                 className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-[#c9d1d9] hover:bg-[#30363d] rounded transition-colors text-left"
+                onClick={() => { navigate("/app/settings")}}
+
               >
-                <span>{item.icon}</span>
+              
+                <span>{item.label}</span>
+              </button>
+            ))}
+            {[
+              { label: 'Dashboard' },
+            ].map(item => (
+              <button
+                key={item.label}
+                className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-[#c9d1d9] hover:bg-[#30363d] rounded transition-colors text-left"
+                onClick={() => { navigate("/app/dashboard")}}
+
+              >
+               
                 <span>{item.label}</span>
               </button>
             ))}
@@ -75,7 +90,9 @@ export default function Navbar() {
               <span>🚪</span>
               <span>Log Out</span>
             </button>
+            
           </div>
+          
         )}
       </div>
     </header>

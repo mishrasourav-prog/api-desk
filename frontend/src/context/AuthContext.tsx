@@ -3,11 +3,25 @@ import { createContext, useContext, useState , useEffect} from 'react';
 import type { ReactNode} from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../config/axiosInstance.Config';
+import type { User } from '../types';
+
+
+// interface AuthContextType {
+//   isAuthenticated: boolean;
+//   isLoading: boolean;
+//   pendingEmail: string;
+//   onLoginSuccess: () => void;
+//   onRegisterSuccess: (email: string) => void;
+//   onLogout: () => void;
+// }
 
 interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   pendingEmail: string;
+  user: User | null;
+  setUser: React.Dispatch<React.SetStateAction<User | null>>;
+
   onLoginSuccess: () => void;
   onRegisterSuccess: (email: string) => void;
   onLogout: () => void;
@@ -19,6 +33,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [pendingEmail, setPendingEmail] = useState('');
+  const [user, setUser] = useState<User | null>(null);
   const navigate = useNavigate();
 
   const onLoginSuccess = () => {
@@ -31,29 +46,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     navigate('/email-sent');
   };
 
-  const onLogout = async() => {
-    await api.post(
-    "/auth/logout",
-    {},
-    { withCredentials: true }
-  );
-    setIsAuthenticated(false);
-    localStorage.removeItem("token");
-    navigate('/login');
-  };
+   const onLogout = async () => {
+  await api.post("/auth/logout");
+
+  setUser(null);
+  setIsAuthenticated(false);
+
+  navigate("/login");
+};
 
   useEffect(() => {
   const checkAuth = async () => {
     try {
-      await api.get("/user/me");
+     const response = await api.get("/user/me");
+     console.log(response.data);
 
-      setIsAuthenticated(true);
+setUser(response.data.data);
+setIsAuthenticated(true);
       
     } catch {
       try{
         await api.post("/auth/refresh");
-        await api.get("/user/me");
-      setIsAuthenticated(true);
+        const response = await api.get("/user/me");
+
+setUser(response.data.data);
+setIsAuthenticated(true);
 
 
       }catch{
@@ -72,7 +89,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, pendingEmail, onLoginSuccess, onRegisterSuccess, onLogout , isLoading}}>
+    <AuthContext.Provider value={{isAuthenticated,
+    pendingEmail,
+    user,
+    setUser,
+    onLoginSuccess,
+    onRegisterSuccess,
+    onLogout,
+    isLoading}}>
       {children}
     </AuthContext.Provider>
   );
