@@ -7,7 +7,11 @@ const RequestLogSchema = new Schema({
   method: { type: String, required: true },
   status: { type: Number, required: true },
   latency: { type: String, required: true },
-  ipAddress: { type: String, required: true }
+  ipAddress: { type: String, required: true },
+  path: {
+    type: String,
+    required: true,
+  }
 });
 
 export const RequestLog = mongoose.model('RequestLog', RequestLogSchema);

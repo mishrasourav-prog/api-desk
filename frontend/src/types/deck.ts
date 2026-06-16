@@ -65,4 +65,5 @@ export type Deck = {
   createdAt?: string;
   updatedAt?: string;
   _id: string;
+  description?: string;
 };

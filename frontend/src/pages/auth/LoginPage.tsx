@@ -10,6 +10,7 @@ import api from "../../config/axiosInstance.Config.ts";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import toast from "react-hot-toast";
 
 
 export default function LoginPage() {
@@ -59,9 +60,11 @@ export default function LoginPage() {
 
   } catch (error: unknown) {
     if (axios.isAxiosError(error)) {
+      const message = error.response?.data?.message || "Registration failed";
       setErrors({
         form: error.response?.data?.message || "Login failed",
       });
+      toast.error(message);
     } else {
       setErrors({
         form: "An unexpected error occurred",

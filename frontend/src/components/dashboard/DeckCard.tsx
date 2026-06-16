@@ -11,11 +11,10 @@ interface DeckCardProps {
 }
 
 export default function DeckCard({
-    deck,
+  deck,
   onOpen,
   onDeckDeleted,
-}: DeckCardProps
-) {
+}: DeckCardProps) {
   const [copied, setCopied] = useState(false);
 
   function handleCopy(e: React.MouseEvent) {
@@ -26,24 +25,21 @@ export default function DeckCard({
       setTimeout(() => setCopied(false), 1800);
     });
   }
+
   const handleDelete = (e: React.MouseEvent) => {
-  e.stopPropagation();
-
-  const ok = window.confirm(
-    `Delete endpoint: ${deck.method} /${deck.path}?`
-  );
-
-  if (!ok) return;
-
-  onDeckDeleted?.(deck._id);
-};
+    e.stopPropagation();
+    const ok = window.confirm(
+  `Delete endpoint: ${deck.method} ${deck.path.startsWith('/') ? deck.path : `/${deck.path}`}?`
+);
+    if (!ok) return;
+    onDeckDeleted?.(deck._id);
+  };
 
   const handleOpen = () => {
-  onOpen?.(deck);
-};
+    onOpen?.(deck);
+  };
 
-
- return (
+  return (
     <div
       onClick={handleOpen}
       className="bg-[#161b22] border border-[#30363d] rounded-lg p-4 relative overflow-hidden hover:border-[#8b949e] transition-all flex flex-col gap-3 shadow-sm cursor-pointer group"
@@ -53,25 +49,18 @@ export default function DeckCard({
         <div className="flex items-center gap-2 min-w-0">
           <MethodBadge method={deck.method} />
           <span className="font-mono text-sm font-semibold text-[#f0f6fc] truncate">
-            /api/mock/{deck.creator}/{deck.path}
+            /api/mock/{deck.creator}{deck.path.startsWith('/') ? deck.path : `/${deck.path}`}
           </span>
         </div>
         <StatusBadge status={deck.responseStatus} />
       </div>
 
-      {/* Description */}
-      {/* {deck.description && (
-        <p className="text-xs text-[#8b949e] line-clamp-1">{deck.description}</p>
-      )} */}
-
-      {/* Metrics row */}
-      {/* <div className="flex items-center gap-4 text-[11px] text-[#8b949e]">
-        <span>📊 <span className="text-[#c9d1d9] font-semibold">{card.totalCalls.toLocaleString()}</span> calls</span>
-        <span>📅 {formatTimestamp(card.createdAt)}</span>
-        {card.logs.length > 0 && (
-          <span>⚡ Last: <span className="text-[#c9d1d9]">{card.logs[0].latency}</span></span>
-        )}
-      </div> */}
+      {/* Description 🌟 FIXED SYNTAX: Single curly braces instead of double */}
+      {deck.description && (
+        <p className="text-xs text-[#8b949e] line-clamp-1 italic px-0.5">
+          {deck.description}
+        </p>
+      )}
 
       {/* Footer actions */}
       <div className="flex items-center justify-between pt-2 border-t border-[#30363d]">
@@ -84,7 +73,7 @@ export default function DeckCard({
             <span className="font-mono">{copied ? 'Copied!' : 'Copy URL'}</span>
           </button>
           <button
-            onClick={(e) => { e.stopPropagation(); handleOpen() }}
+            onClick={(e) => { e.stopPropagation(); handleOpen(); }}
             className="flex items-center gap-1.5 text-[11px] text-[#8b949e] hover:text-[#c9d1d9] transition-colors px-2 py-1 rounded hover:bg-[#30363d]"
           >
             <span>⚙️</span>

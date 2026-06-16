@@ -17,7 +17,7 @@ const UserSchema = new Schema({
         },
     password:{
         type:String,
-        required:true,
+        required:false,
         select: false,
 
         },
@@ -27,7 +27,18 @@ const UserSchema = new Schema({
         unique:true,
         lowercase: true,
         trim: true,
-        }
+        },
+    googleId: {
+    type: String
+  },
+
+  avatar: {
+    type: String
+  },
+  refreshToken: {
+    type: String,
+    default: null
+}
     },
     {
         timestamps:true 

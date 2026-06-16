@@ -122,8 +122,10 @@ export function saveEndpoints(data: DeckCardData[]): void {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 }
 
-export function buildMockUrl(username: string, path: string): string {
-  return `https://api-deck.com/api/mock/${username}/${path}`;
+export function buildMockUrl(creator: string, path: string) {
+  const cleanPath = path.startsWith('/') ? path : `/${path}`;
+  // 🌟 Ensure there is no hardcoded slash before ${cleanPath}
+  return `http://localhost:5000/api/mock/${creator}${cleanPath}`;
 }
 
 export function createNewEndpoint(

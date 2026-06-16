@@ -4,6 +4,7 @@ import {isValidEmail} from '../../types/auth';
 import AuthCard from '../../components/auth/AuthCard';
 import AuthInput from '../../components/auth/AuthInput';
 import { useNavigate } from 'react-router-dom';
+import api from '../../config/axiosInstance.Config';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -17,9 +18,24 @@ export default function ForgotPasswordPage() {
     if (!isValidEmail(email)) { setError('Enter a valid email address'); return; }
     setError('');
     setLoading(true);
-    await new Promise(r => setTimeout(r, 1100));
-    setLoading(false);
-    navigate("/email-sent");
+    try {
+  setLoading(true);
+
+  await api.post("/auth/forgot-password", {
+    email,
+  });
+
+  navigate("/verify-reset-otp", {
+  state: { email }
+});
+
+} catch (error) {
+  console.error(error);
+  setError("Unable to send reset email");
+} finally {
+  setLoading(false);
+}
+  
   }
 
   return (

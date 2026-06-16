@@ -119,7 +119,7 @@ const handleDelete = async (id: string) => {
           <EmptyState onCreateNew={onCreateNew} />
         ) : filtered.length === 0 ? (
           <div className="text-center py-16 text-[#6e7681] text-sm">
-            No endpoints match <span className="font-mono text-[#c9d1d9]">"{search}"</span>
+            No endpoints match <span className="font-mono text-[#c9d1d9]">{search}</span>
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -136,4 +136,4 @@ const handleDelete = async (id: string) => {
       </div>
     </div>
   );
-}
+};

@@ -9,11 +9,10 @@ import LoginPage from '../pages/auth/LoginPage';
 import RegisterPage from '../pages/auth/RegisterPage';
 import ForgotPasswordPage from '../pages/auth/ForgotPasswordPage';
 import ResetPasswordPage from '../pages/auth/ResetPasswordPage';
+import VerifyResetOtpPage from '../pages/auth/VerifyResetOtpPage';
 import EmailSentPage from '../pages/auth/EmailSentPage';
-import VerifyEmailPage from '../pages/auth/VerifyEmailPage';
+
 import MaintenancePage from '../pages/MaintenancePage';
-// import SettingsPageApp from '../pages/SettingsPage';
-// import SettingsPage from '../pages/SettingsPage';
 import EditProfilePage from '../state/EditProfilePage';
 import SettingsPage from '../pages/SettingsPage';
 
@@ -37,62 +36,60 @@ export default function AppRoutes() {
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/email-sent" element={<EmailSentPage email={pendingEmail} />} />
-      <Route path="/verify-email" element={<VerifyEmailPage email={pendingEmail} />} />
+      <Route path="/verify-reset-otp" element={<VerifyResetOtpPage />} />
       <Route path="/maintenance" element={<MaintenancePage />} />
-      <Route path="/app/designer" element={<DeckDesigner />} />
-      <Route path="/app/designer/:id" element={<DeckDesigner />} />
-      {/* <Route path="/app/settings" element={<SettingsPageApp />} />
-      <Route path="/settings" element={<SettingsPage />} />
-      {/* <Route path="/settings/edit" element={<EditProfilePage />} /> */}
-      {/* <Route path="/settings/change-password" element={<ChangePasswordPage />} /> */}
-      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-      <Route path="/reset-password" element={<ResetPasswordPage />} /> */
-      
 
       <Route
-  path="/app/settings"
-  element={
-    <ProtectedRoute>
-      <AppLayout>
-        < SettingsPage/>
-      </AppLayout>
-    </ProtectedRoute>
-  }
-/>
+        path="/app/settings"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <SettingsPage />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
 
-<Route
-  path="/app/settings/edit"
-  element={
-    <ProtectedRoute>
-      <AppLayout>
-        <EditProfilePage />
-      </AppLayout>
-    </ProtectedRoute>
-  }
-/>
-      
+      <Route
+        path="/app/designer/:id"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <DeckDesigner />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
 
+      <Route
+        path="/app/settings/edit"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <EditProfilePage />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
 
-      {/* PROTECTED */}
       <Route
         path="/app/dashboard"
         element={
-              <ProtectedRoute>
-           <AppLayout>
-             <Dashboard />
-           </AppLayout>
-        </ProtectedRoute>
-            
+          <ProtectedRoute>
+            <AppLayout>
+              <Dashboard />
+            </AppLayout>
+          </ProtectedRoute>
         }
       />
       <Route
         path="/app/designer"
         element={
-        <ProtectedRoute>
-           <AppLayout>
-             <DeckDesigner />
-           </AppLayout>
-        </ProtectedRoute>
+          <ProtectedRoute>
+            <AppLayout>
+              <DeckDesigner />
+            </AppLayout>
+          </ProtectedRoute>
         }
       />
 

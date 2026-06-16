@@ -1,5 +1,7 @@
 import type { HttpMethod, HttpStatus } from '../../types/deck';
 import { STATUS_LABELS, METHOD_STYLES } from '../../types/deck';
+import { useAuth } from '../../context/AuthContext';
+
 
 interface EndpointFormProps {
   path: string;
@@ -19,6 +21,8 @@ export default function EndpointForm({
   path, method, status, description,
   onPathChange, onMethodChange, onStatusChange, onDescriptionChange,
 }: EndpointFormProps) {
+
+  const {user} = useAuth();
   return (
     <div className="flex flex-col gap-4">
       {/* Method + Path */}
@@ -39,7 +43,7 @@ export default function EndpointForm({
           </select>
           {/* Path prefix */}
           <span className="flex items-center px-2.5 bg-[#161b22] text-[#6e7681] font-mono text-xs shrink-0 border-r border-[#30363d] select-none whitespace-nowrap">
-            api/mock/arjun/
+            api/mock/{user?.username}
           </span>
           {/* Path input */}
           <input

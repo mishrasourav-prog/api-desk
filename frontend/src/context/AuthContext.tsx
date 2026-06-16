@@ -6,15 +6,6 @@ import api from '../config/axiosInstance.Config';
 import type { User } from '../types';
 
 
-// interface AuthContextType {
-//   isAuthenticated: boolean;
-//   isLoading: boolean;
-//   pendingEmail: string;
-//   onLoginSuccess: () => void;
-//   onRegisterSuccess: (email: string) => void;
-//   onLogout: () => void;
-// }
-
 interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;

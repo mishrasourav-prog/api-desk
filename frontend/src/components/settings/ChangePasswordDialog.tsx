@@ -1,4 +1,7 @@
 import { useState } from 'react';
+import api from '../../config/axiosInstance.Config';
+import axios from 'axios';
+import { useAuth } from '../../context/AuthContext';
 
 interface ChangePasswordDialogProps {
   onCancel: () => void;
@@ -101,6 +104,9 @@ export default function ChangePasswordDialog({ onCancel }: ChangePasswordDialogP
 
   const strength = getStrength(form.next);
 
+  const { onLogout } = useAuth();
+const [serverError, setServerError] = useState('');
+
   function set(key: keyof FormState) {
     return (e: React.ChangeEvent<HTMLInputElement>) =>
       setForm(prev => ({ ...prev, [key]: e.target.value }));
@@ -118,14 +124,35 @@ export default function ChangePasswordDialog({ onCancel }: ChangePasswordDialogP
   }
 
   async function handleSubmit() {
-    if (!validate()) return;
-    setLoading(true);
-    await new Promise(r => setTimeout(r, 1000));
-    setLoading(false);
-    setSuccess(true);
-    setTimeout(onCancel, 1500);
-  }
+  if (!validate()) return;
 
+  try {
+    setLoading(true);
+    setServerError('');
+
+    await api.put('/auth/change-password', {
+      currpassword: form.current,
+      newpassword: form.next,
+    });
+
+    setSuccess(true);
+
+    setTimeout(async () => {
+       onLogout();
+    }, 1500);
+
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      setServerError(
+        error.response?.data?.message || 'Unable to update password'
+      );
+    } else {
+      setServerError('Something went wrong');
+    }
+  } finally {
+    setLoading(false);
+  }
+}
   return (
     <div
       style={{
@@ -265,6 +292,17 @@ export default function ChangePasswordDialog({ onCancel }: ChangePasswordDialogP
                 </div>
               ))}
             </div>
+            {serverError && (
+         <p
+    style={{
+      color: '#f85149',
+      fontSize: 12,
+      margin: 0,
+    }}
+  >
+    {serverError}
+  </p>
+)}
 
             {/* Actions */}
             <div style={{ display: 'flex', gap: 10, paddingTop: 4, borderTop: '1px solid #21262d' }}>

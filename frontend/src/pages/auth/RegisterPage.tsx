@@ -1,5 +1,4 @@
-import { useState} from 'react';
-import type {FormEvent} from 'react';
+import { useState, type ChangeEvent, type FormEvent } from 'react';
 import { isValidEmail, getPasswordStrength } from '../../types/auth.ts';
 import AuthCard from '../../components/auth/AuthCard';
 import AuthBrand from '../../components/auth/AuthBrand';
@@ -10,6 +9,7 @@ import PasswordStrengthMeter from '../../components/auth/PasswordStrengthMeter';
 import api from "../../config/axiosInstance.Config.ts";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 
 export default function RegisterPage() {
@@ -18,7 +18,7 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) =>
+  const set = (k: keyof typeof form) => (e: ChangeEvent<HTMLInputElement>) =>
     setForm(p => ({ ...p, [k]: e.target.type === 'checkbox' ? e.target.checked : e.target.value }));
 
   function validate(): boolean {
@@ -28,7 +28,7 @@ export default function RegisterPage() {
     if (!form.email) e.email = 'Email is required';
     else if (!isValidEmail(form.email)) e.email = 'Invalid email';
     if (!form.username) e.username = 'Username is required';
-    else if (form.username.length < 3) e.username = 'At least 3 characters';
+    else if (form.username.length < 5) e.username = 'At least 5 characters';
     if (!form.password) e.password = 'Password is required';
     else if (getPasswordStrength(form.password).score < 2) e.password = 'Password is too weak';
     if (!form.agreed) e.agreed = 'You must accept the terms';
@@ -37,40 +37,38 @@ export default function RegisterPage() {
   }
 
   async function handleSubmit(e: FormEvent) {
-  e.preventDefault();
+    e.preventDefault();
 
-  if (!validate()) return;
+    if (!validate()) return;
 
-  try {
-    setLoading(true);
-    setErrors({});
+    try {
+      setLoading(true);
+      setErrors({});
 
-    const response = await api.post("/auth/register", {
-      name: `${form.firstName} ${form.lastName}`,
-      
-      email: form.email,
-      username: form.username,
-      password: form.password,
-    });
-
-    console.log(response.data);
-
-    navigate("/login");
-
-  } catch (error: unknown) {
-    if (axios.isAxiosError(error)) {
-      setErrors({
-        form: error.response?.data?.message || "Registration failed",
+      const response = await api.post("/auth/register", {
+        name: `${form.firstName} ${form.lastName}`.trim(),
+        email: form.email,
+        username: form.username,
+        password: form.password,
       });
-    } else {
-      setErrors({
-        form: "Something went wrong",
-      });
+
+      console.log(response.data);
+
+      navigate("/login");
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        const message = error.response?.data?.message || "Registration failed";
+        setErrors({
+          form: error.response?.data?.message || "Registration failed",
+        });
+        toast.error(message);
+      } else {
+        toast.error("Registration failed");
+      }
+    } finally {
+      setLoading(false);
     }
-  } finally {
-    setLoading(false);
   }
-}
 
   return (
     <AuthCard>

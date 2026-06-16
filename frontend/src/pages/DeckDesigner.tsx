@@ -33,7 +33,8 @@ export default function DeckDesigner() {
     const fetchDeck = async () => {
       try {
         const response = await api.get(`/deck/${id}`);
-        const deck = response.data.deck;
+        console.log("FULL RESPONSE:", response.data);
+        const deck = response.data.data.deck;
 
         setPath(deck.path);
         setMethod(deck.method);
@@ -60,6 +61,14 @@ export default function DeckDesigner() {
 
   // ---------------- SAVE / UPDATE ----------------
 async function handleSave() {
+    console.log("FINAL DESCRIPTION:", description);
+    console.log("SENDING PAYLOAD:", {
+  path,
+  method,
+  status,
+  body,
+  description
+});
   if (!path.trim()) {
     alert("Please provide a valid path.");
     return;
@@ -69,25 +78,28 @@ async function handleSave() {
     alert("Invalid JSON.");
     return;
   }
+  const sanitizedPath = path.trim().replace(/\/+/g, '/');
+
+  const finalDescriptionText = String(description || "").trim();
 
   try {
     if (id) {
       // EDIT existing deck
       await api.put(`/deck/${id}`, {
-        path: path.trim(),
+        path: sanitizedPath.trim(),
         method,
         responseStatus: Number(status),
         responseBody: body,
-        description,
+        description: finalDescriptionText,
       });
     } else {
       // CREATE new deck
       await api.post("/deck/create", {
-        path: path.trim(),
+        path: sanitizedPath.trim(),
         method,
         responseStatus: Number(status),
         responseBody: body,
-        description,
+        description: finalDescriptionText,
       });
     }
 

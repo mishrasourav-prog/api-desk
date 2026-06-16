@@ -26,6 +26,10 @@ const deckSchema = new Schema({
     responseStatus:{
         type:Number,
         default:200,
+    },
+    description: {
+        type: String,
+        default: "",
     }
 },
 {
@@ -33,5 +37,6 @@ const deckSchema = new Schema({
 });
 
 deckSchema.index({ creator: 1, path: 1, method: 1 }, { unique: true });
+
 
 export const Deck = mongoose.model('Deck',deckSchema);

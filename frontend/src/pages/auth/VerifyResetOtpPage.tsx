@@ -1,19 +1,18 @@
 import { useRef, useState } from 'react';
 import AuthCard from '../../components/auth/AuthCard';
-import api from "../../config/axiosInstance.Config";
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { useLocation } from "react-router-dom";
 
-interface VerifyEmailPageProps {
-  email: string;
-}
 
-export default function VerifyEmailPage({ email }: VerifyEmailPageProps) {
+export default function VerifyEmailPage() {
   const [code, setCode] = useState<string[]>(Array(6).fill(''));
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const refs = useRef<(HTMLInputElement | null)[]>([]);
   const navigate = useNavigate();
+  const location = useLocation();
+  const email = location.state?.email;
 
   function handleChange(i: number, val: string) {
     if (!/^\d?$/.test(val)) return;
@@ -33,15 +32,17 @@ export default function VerifyEmailPage({ email }: VerifyEmailPageProps) {
     try{
       setLoading(true);
       setError('');
+      navigate("/reset-password", {
+  state: {
+    email,
+    otp
+  }
+});
 
-       const response = await api.post('/auth/verify-email', {
-              email,
-              otp,
-        });
+     
 
-        console.log(response.data);
 
-        navigate("/login");
+      
 
     }catch (error: unknown) {
     if (axios.isAxiosError(error)) {

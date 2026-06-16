@@ -78,6 +78,7 @@ if (!user) {
 
         <AccountSection
           onDeleteAccount={() => setShowDelete(true)}
+          onChangePassword={() => setShowChangePw(true)}
         />
       </div>
     </>
