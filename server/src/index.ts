@@ -58,9 +58,8 @@ app.use((req, res, next) => {
 
 // 5. Global Centralized Error Interceptor (MUST be the absolute bottom)
 app.use(errorHandler);
-
-const port = process.env.PORT!;
-app.listen(port, () => {
+const port = Number(process.env.PORT) || 5000;
+app.listen(port, "0.0.0.0", () => {
     console.log(`🚀 API-Deck Server running smoothly on port ${port}`);
 });
 app.get("/", (req, res) => {
