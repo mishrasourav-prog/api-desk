@@ -30,7 +30,10 @@ const app = express();
 
 const frontendOrigin = process.env.FRONTEND_ORIGIN!;
 app.use(cors({
-  origin: frontendOrigin || "*",
+   origin: [
+    frontendOrigin, // dev
+    "https://api-desk-brown.vercel.app" // production
+  ],
   credentials: true,
 }));
 app.use(express.json());
