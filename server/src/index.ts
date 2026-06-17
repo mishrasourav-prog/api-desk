@@ -30,7 +30,7 @@ const app = express();
 
 const frontendOrigin = process.env.FRONTEND_ORIGIN!;
 app.use(cors({
-  origin: frontendOrigin,
+  origin: frontendOrigin || "*",
   credentials: true,
 }));
 app.use(express.json());
@@ -62,4 +62,7 @@ app.use(errorHandler);
 const port = process.env.PORT!;
 app.listen(port, () => {
     console.log(`🚀 API-Deck Server running smoothly on port ${port}`);
+});
+app.get("/", (req, res) => {
+  res.json({ message: "API running 🚀" });
 });
