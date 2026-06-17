@@ -4,13 +4,13 @@ import { Request, Response, NextFunction } from "express";
 import {User} from "../models/user.model";
 import { ApiResponse } from "../utils/apiResponse";
 import { ApiError } from "../utils/apiError";
-import { AuthRequest } from "../types/authRequest";
+// import { AuthRequest } from "../types/authRequest";
 import { ResetPass } from "../models/passwordReset.model";
 import { transporter } from "../utils/sendEmail";
 import validator from "validator";
 
 
-export const registerUser = async (req: AuthRequest, res: Response, next: NextFunction) => {
+export const registerUser = async (req: Request, res: Response, next: NextFunction) => {
   const { username, password, email, name } = req.body;
 
   if (!name?.trim()) {
@@ -61,7 +61,7 @@ export const registerUser = async (req: AuthRequest, res: Response, next: NextFu
 };
 
 export const loginUser = async (
-  req: AuthRequest,
+  req: Request,
   res: Response,
   next: NextFunction
 ) => {
@@ -136,7 +136,7 @@ export const loginUser = async (
 };
 
 export const logoutUser = async (
-  req: AuthRequest,
+  req: Request,
   res: Response
 ) => {
   res.clearCookie("accessToken", {
@@ -161,7 +161,7 @@ res.clearCookie("refreshToken", {
 );
 };
 
-export const refreshAccessToken = async (req: AuthRequest, res: Response, next: NextFunction) => {
+export const refreshAccessToken = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const refreshToken = req.cookies.refreshToken;
 
@@ -196,12 +196,12 @@ export const refreshAccessToken = async (req: AuthRequest, res: Response, next: 
 };
 
 export const changePassword = async (
-  req: AuthRequest,
+  req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const userId = req.user?.id;
+    const userId = (req.user as any)?._id;
 
     const user = await User.findById(userId).select("+password");
 
@@ -266,7 +266,7 @@ export const changePassword = async (
   }
 };
 
-export const generateOtp = async (req: AuthRequest, res: Response, next: NextFunction) => {
+export const generateOtp = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { email } = req.body;
 
@@ -329,7 +329,7 @@ export const generateOtp = async (req: AuthRequest, res: Response, next: NextFun
   }
 };
 
-export const verifyUserForgotPasswordandReset = async (req: AuthRequest, res: Response, next: NextFunction) => {
+export const verifyUserForgotPasswordandReset = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { otp, email, newpassword } = req.body;
 
@@ -383,7 +383,7 @@ export const verifyUserForgotPasswordandReset = async (req: AuthRequest, res: Re
 };
 
 
-export const googleCallbackController = async (req: AuthRequest, res: Response, next: NextFunction) => {
+export const googleCallbackController = async (req: Request, res: Response, next: NextFunction) => {
   try {
     if (!req.user) {
       return next(new ApiError(401, "Google authentication failed"));
@@ -431,7 +431,7 @@ export const googleCallbackController = async (req: AuthRequest, res: Response, 
   }
 };
 
-export const verifyOtpOnly = async (req:AuthRequest, res:Response, next:NextFunction) => {
+export const verifyOtpOnly = async (req:Request, res:Response, next:NextFunction) => {
   const { email, otp } = req.body;
 
   const user = await User.findOne({ email });

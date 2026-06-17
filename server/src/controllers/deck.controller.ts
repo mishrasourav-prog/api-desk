@@ -1,18 +1,17 @@
 import { Deck } from "../models/deck.model";
-import { Response, NextFunction } from "express";
-import { AuthRequest } from "../types/authRequest";
+import { Request,Response, NextFunction } from "express";
 import { User } from "../models/user.model";
 import { ApiResponse } from "../utils/apiResponse";
 import { ApiError } from "../utils/apiError";
 
-export const createDeck = async (req: AuthRequest, res: Response, next: NextFunction) => {
+export const createDeck = async (req: Request, res: Response, next: NextFunction) => {
   try {
     if (!req.user) {
       return next(new ApiError(401, "Unauthorized access"));
     }
 
-    const { id } = req.user;
-    const userData = await User.findById(id);
+    const { _id } = req.user;
+    const userData = await User.findById(_id);
 
     if (!userData) {
       return next(new ApiError(404, "User not found"));
@@ -31,7 +30,7 @@ export const createDeck = async (req: AuthRequest, res: Response, next: NextFunc
     }
 
     const deck = await Deck.create({
-      userId: req.user.id,
+      userId: req.user._id,
       creator,
       path: dbPath,
       method,
@@ -60,13 +59,13 @@ export const createDeck = async (req: AuthRequest, res: Response, next: NextFunc
   }
 };
 
-export const getUserDecks = async (req: AuthRequest, res: Response, next: NextFunction) => {
+export const getUserDecks = async (req: Request, res: Response, next: NextFunction) => {
   try {
     if (!req.user) {
       return next(new ApiError(401, "Unauthorized access"));
     }
 
-    const userData = await User.findById(req.user.id);
+    const userData = await User.findById(req.user._id);
 
     if (!userData) {
       return next(new ApiError(404, "User not found"));
@@ -88,7 +87,7 @@ export const getUserDecks = async (req: AuthRequest, res: Response, next: NextFu
 };
 
 
-export const deleteDeck = async (req: AuthRequest, res: Response, next: NextFunction) => {
+export const deleteDeck = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
 
@@ -96,7 +95,7 @@ export const deleteDeck = async (req: AuthRequest, res: Response, next: NextFunc
       return next(new ApiError(401, "Unauthorized access"));
     }
 
-    const userData = await User.findById(req.user.id);
+    const userData = await User.findById(req.user._id);
 
     if (!userData) {
       return next(new ApiError(404, "User not found"));
@@ -128,7 +127,7 @@ export const deleteDeck = async (req: AuthRequest, res: Response, next: NextFunc
 
 
 
-export const getDeckById = async (req: AuthRequest, res: Response, next: NextFunction) => {
+export const getDeckById = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const deck = await Deck.findById(req.params.id);
 
@@ -151,13 +150,13 @@ export const getDeckById = async (req: AuthRequest, res: Response, next: NextFun
 
 
 
-export const updateDeck = async (req: AuthRequest, res: Response, next: NextFunction) => {
+export const updateDeck = async (req: Request, res: Response, next: NextFunction) => {
   try {
     if (!req.user) {
       return next(new ApiError(401, "Unauthorized access"));
     }
 
-    const userData = await User.findById(req.user.id);
+    const userData = await User.findById(req.user._id);
 
     if (!userData) {
       return next(new ApiError(404, "User not found"));

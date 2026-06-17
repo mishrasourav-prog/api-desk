@@ -1,15 +1,11 @@
 import { Deck } from "../models/deck.model";
-import { AuthRequest } from "../types/authRequest";
-import { Response, NextFunction } from "express";
+import { Request,Response, NextFunction } from "express";
 import { ApiError } from "../utils/apiError";
 import { RequestLog } from "../models/requestLog.model";
 import { logEmitter } from '../utils/logEmitter';
 import { ApiResponse } from "../utils/apiResponse";
 
-
-
-
-export const executeMock = async (req: AuthRequest, res: Response, next: NextFunction) => {
+export const executeMock = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const startTime = Date.now();
     const requestMethod = req.method as "GET" | "POST" | "DELETE" | "PUT" | "PATCH";
@@ -85,7 +81,7 @@ export const executeMock = async (req: AuthRequest, res: Response, next: NextFun
 
 
 export const getRecentLogs = async (
-  req: AuthRequest,
+  req: Request,
   res: Response,
   next: NextFunction
 ) => {
@@ -109,8 +105,8 @@ export const getRecentLogs = async (
   }
 };
 
-export const handleMockRequest = async (req: AuthRequest, res: Response) => {
-  const userId = req.user.id;
+export const handleMockRequest = async (req: Request, res: Response) => {
+  const userId = req.user._id;
   const { deckId } = req.params;
 
   const startTime = performance.now();

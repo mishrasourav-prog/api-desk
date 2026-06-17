@@ -1,19 +1,18 @@
-import { Response, NextFunction } from "express";
+import { Request,Response, NextFunction } from "express";
 import {User} from "../models/user.model";
 import { ApiResponse } from "../utils/apiResponse";
 import { ApiError } from "../utils/apiError";
-import { AuthRequest } from "../types/authRequest";
 import { Deck } from "../models/deck.model";
 import {RequestLog} from "../models/requestLog.model";
 
 
 export const getCurrentUser = async (
-  req: AuthRequest,
+  req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const userId = req.user?.id;
+    const userId = req.user?._id;
 
     const user = await User.findById(userId).select("-password");
 
@@ -35,12 +34,12 @@ export const getCurrentUser = async (
 };
 
 export const editUser = async (
-  req: AuthRequest,
+  req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const userId = req.user?.id;
+    const userId = req.user?._id;
     const { name, username, email } = req.body;
 
     const user = await User.findById(userId);
@@ -119,12 +118,12 @@ export const editUser = async (
 };
 
 export const deleteUser = async (
-  req: AuthRequest,
+  req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const userId = req.user?.id;
+    const userId = req.user?._id;
     const { DELETE } = req.body;
 
     if (!userId) {

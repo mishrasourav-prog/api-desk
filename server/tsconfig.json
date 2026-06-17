@@ -1,3 +1,38 @@
+// {
+//   "compilerOptions": {
+//     "target": "ES2022",
+//     "module": "NodeNext",
+//     "moduleResolution": "NodeNext",
+//     "outDir": "./dist",
+//     "rootDir": "./src",
+//     "strict": false,
+//     "esModuleInterop": true,
+//     "skipLibCheck": true,
+//     "forceConsistentCasingInFileNames": true,
+//     "typeRoots": [
+//       "./node_modules/@types",
+//       "./src/@types",
+//       "./src/types"
+//     ]
+//   },
+//   "include": ["src"]
+// }
+
+// {
+//   "compilerOptions": {
+//     "target": "ES2022",
+//     "module": "NodeNext",
+//     "moduleResolution": "NodeNext",
+//     "outDir": "./dist",
+//     "rootDir": "./src",
+//     "strict": false,
+//     "esModuleInterop": true,
+//     "skipLibCheck": true,
+//     "forceConsistentCasingInFileNames": true,
+//   },
+//   "include": ["src"]
+// }
+
 {
   "compilerOptions": {
     "target": "ES2022",
@@ -8,11 +43,7 @@
     "strict": false,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "typeRoots": [
-      "./node_modules/@types",
-      "./src/@types"
-    ]
+    "forceConsistentCasingInFileNames": true
   },
-  "include": ["src"]
+  "include": ["src/**/*"]
 }
