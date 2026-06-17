@@ -5,8 +5,6 @@ import { User } from "../models/user.model";
 import { ApiResponse } from "../utils/apiResponse";
 import { ApiError } from "../utils/apiError";
 
-
-
 export const createDeck = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     if (!req.user) {
@@ -61,8 +59,6 @@ export const createDeck = async (req: AuthRequest, res: Response, next: NextFunc
     next(error);
   }
 };
-
-
 
 export const getUserDecks = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {

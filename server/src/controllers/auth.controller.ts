@@ -10,7 +10,7 @@ import { transporter } from "../utils/sendEmail";
 import validator from "validator";
 
 
-export const registerUser = async (req: Request, res: Response, next: NextFunction) => {
+export const registerUser = async (req: AuthRequest, res: Response, next: NextFunction) => {
   const { username, password, email, name } = req.body;
 
   if (!name?.trim()) {
@@ -61,7 +61,7 @@ export const registerUser = async (req: Request, res: Response, next: NextFuncti
 };
 
 export const loginUser = async (
-  req: Request,
+  req: AuthRequest,
   res: Response,
   next: NextFunction
 ) => {
@@ -136,7 +136,7 @@ export const loginUser = async (
 };
 
 export const logoutUser = async (
-  req: Request,
+  req: AuthRequest,
   res: Response
 ) => {
   res.clearCookie("accessToken", {
@@ -161,7 +161,7 @@ res.clearCookie("refreshToken", {
 );
 };
 
-export const refreshAccessToken = async (req: Request, res: Response, next: NextFunction) => {
+export const refreshAccessToken = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const refreshToken = req.cookies.refreshToken;
 
@@ -383,7 +383,7 @@ export const verifyUserForgotPasswordandReset = async (req: AuthRequest, res: Re
 };
 
 
-export const googleCallbackController = async (req: Request, res: Response, next: NextFunction) => {
+export const googleCallbackController = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     if (!req.user) {
       return next(new ApiError(401, "Google authentication failed"));
