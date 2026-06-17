@@ -1,8 +1,8 @@
-import { Router, Response, RequestHandler } from 'express';
+import { Request,Router, Response, RequestHandler } from 'express';
 import { logEmitter } from '../utils/logEmitter';
 import { getRecentLogs } from '../controllers/mockEngine.controller';
 import { verifyJWT } from '../middlewares/auth.middleware';
-import { AuthRequest } from '../types/authRequest';
+
 
 const router = Router();
 
@@ -10,8 +10,8 @@ router.use(verifyJWT);
 
 router.get("/recent/:username/:deckId", getRecentLogs as RequestHandler);
 
-router.get('/stream/:deckId', (req:AuthRequest, res:Response) => {
-    const userId = req.user.id;
+router.get('/stream/:deckId', (req:Request, res:Response) => {
+    const userId = req.user._id;
     const { deckId } = req.params;
 
     res.setHeader('Content-Type', 'text/event-stream');
