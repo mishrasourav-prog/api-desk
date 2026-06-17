@@ -1,8 +1,9 @@
 import { useRef, useState } from 'react';
 import AuthCard from '../../components/auth/AuthCard';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useLocation } from "react-router-dom";
+import { verifyOtp } from '../../services/userService';
+
 
 
 export default function VerifyEmailPage() {
@@ -27,33 +28,34 @@ export default function VerifyEmailPage() {
   }
 
   async function handleVerify() {
-    const otp = code.join('');
-    if (otp.length < 6) { setError('Enter all 6 digits'); return; }
-    try{
-      setLoading(true);
-      setError('');
-      navigate("/reset-password", {
-  state: {
-    email,
-    otp
-  }
-});
+  const otp = code.join("");
 
-  }catch (error: unknown) {
-    if (axios.isAxiosError(error)) {
-      setError(
-        error.response?.data?.message || "Registration failed"
-      );
-    } else {
-      setError(
-        "Something went wrong",
-      );
-    }
+  if (otp.length < 6) {
+    setError("Enter all 6 digits");
+    return;
+  }
+
+  try {
+    setLoading(true);
+    setError("");
+
+    await verifyOtp(email, otp);
+
+    // store temporarily OR navigate after success
+    navigate("/reset-password", {
+      state: {
+        email,
+        otp,
+      },
+    });
+
+  } catch (error) {
+
+    setError("Invalid OTP");
   } finally {
     setLoading(false);
   }
-
-  }
+}
 
   return (
     <AuthCard>

@@ -176,3 +176,17 @@ export const updateUser = async (data: {
     handleApiError(err); // ❌ backend error message → toast.error
   }
 };
+
+
+export const verifyOtp = async (email: string, otp: string) => {
+  try {
+    const res = await api.post("/auth/verify-otp", {
+      email,
+      otp,
+    });
+
+    return res.data;
+  } catch (err) {
+    handleApiError(err);
+  }
+};

@@ -479,67 +479,6 @@ export const generateOtp = async (req: AuthRequest, res: Response, next: NextFun
   }
 };
 
-// export const verifyUserForgotPasswordandReset = async(req:AuthRequest , res:Response , next:NextFunction):Promise<void>=>{
-//   try {
-//     const {otp , email, newpassword } = req.body;
-//    const user = await User.findOne({ email }).select("+password");
-
-// if (!user || !user.password) {
-//   return next(new ApiError(404, "Invalid email"));
-// }
-//   if (!otp || !email) {
-//   return next(new ApiError(400, "Missing fields"));
-// }
-
-//   const isvalidreset = await ResetPass.findOne({userId:user._id});
-
-//    if (!isvalidreset) {
-//     return next(new ApiError(404, "Invalid email or OTP"));
-//   }
-
-//   if(isvalidreset.expiresAt<new Date()){
-//     await ResetPass.deleteOne({ userId: user._id });
-//     res.status(400).json(new ApiResponse(400, null, "Otp expired please generate new one"));
-//     return;
-//   }
-
-//   const isvalid = await bcrypt.compare(otp , isvalidreset.otp);
-
-//   if(!isvalid){
-//     res.status(400).json(new ApiResponse(400, null, "Otp Invalid"));
-//     return;
-//   }
-
-//   if (!newpassword) {
-//   return next(new ApiError(400, "New password required"));
-// }
-
-// const samePassword = await bcrypt.compare(
-//   newpassword,
-//   user.password
-// );
-
-// if (samePassword) {
-//   return next(
-//     new ApiError(400, "New password must be different")
-//   );
-// }
-//   const newpass = await bcrypt.hash(newpassword , 10);
-
-//     user.password = newpass;
-//     user.refreshToken = null;
-//     await user.save();
-//     await ResetPass.deleteOne({ userId:user._id });
-
-//     res.status(200).json(new ApiResponse(200, null, "Password updated"))
-
-// } catch (error) {
-//    return next(new ApiError(400, "Some error occured"));
-    
-//   }
-// }
-
-
 export const verifyUserForgotPasswordandReset = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const { otp, email, newpassword } = req.body;
@@ -700,4 +639,29 @@ export const googleCallbackController = async (req: Request, res: Response, next
   } catch (error) {
     next(new ApiError(500, "Google login failed"));
   }
+};
+
+export const verifyOtpOnly = async (req:AuthRequest, res:Response, next:NextFunction) => {
+  const { email, otp } = req.body;
+
+  const user = await User.findOne({ email });
+  if (!user) return next(new ApiError(404, "User not found"));
+
+  const reset = await ResetPass.findOne({ userId: user._id });
+
+  if (!reset) return next(new ApiError(400, "Invalid OTP"));
+
+  if (reset.expiresAt < new Date())
+    return next(new ApiError(400, "OTP expired"));
+
+  const valid = await bcrypt.compare(otp, reset.otp);
+
+  if (!valid) return next(new ApiError(400, "Invalid OTP"));
+
+   return res.status(200).json(
+      new ApiResponse({
+        statusCode: 200,
+        message: "Password reset successful",
+      })
+    );
 };

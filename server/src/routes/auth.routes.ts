@@ -1,5 +1,5 @@
 import express from "express";
-import { registerUser , loginUser, logoutUser , refreshAccessToken, changePassword, generateOtp, verifyUserForgotPasswordandReset} from "../controllers/auth.controller";
+import { registerUser , loginUser, logoutUser , refreshAccessToken, changePassword, generateOtp, verifyUserForgotPasswordandReset,verifyOtpOnly} from "../controllers/auth.controller";
 import { verifyJWT } from "../middlewares/auth.middleware";
 import passport from "passport";
 import { googleCallbackController } from "../controllers/auth.controller";
@@ -16,7 +16,7 @@ router.post(
   "/reset-password",
   verifyUserForgotPasswordandReset
 );
-
+router.post("/verify-otp",verifyOtpOnly);
 
 router.get(
   "/google",

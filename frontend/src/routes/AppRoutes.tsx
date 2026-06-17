@@ -1,5 +1,4 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
 import ProtectedRoute from './ProtectedRoutes';
 
 import Navbar from '../components/shared/Navbar';
@@ -26,7 +25,7 @@ function AppLayout({ children }: { children: React.ReactNode }) {
 }
 
 export default function AppRoutes() {
-  const { pendingEmail } = useAuth();
+
 
   return (
     <Routes>
@@ -35,7 +34,7 @@ export default function AppRoutes() {
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/reset-password" element={<ResetPasswordPage />} />
-      <Route path="/email-sent" element={<EmailSentPage email={pendingEmail} />} />
+      <Route path="/email-sent" element={<EmailSentPage/>} />
       <Route path="/verify-reset-otp" element={<VerifyResetOtpPage />} />
       <Route path="/maintenance" element={<MaintenancePage />} />
 

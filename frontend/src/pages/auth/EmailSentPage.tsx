@@ -1,15 +1,15 @@
 import { useState, useEffect } from 'react';
 import AuthCard from '../../components/auth/AuthCard';
 import { useNavigate } from 'react-router-dom';
+import { useLocation } from "react-router-dom";
 
-interface EmailSentPageProps {
-  email: string;
-}
 
-export default function EmailSentPage({ email}: EmailSentPageProps) {
+export default function EmailSentPage() {
   const [countdown, setCountdown] = useState(60);
   const [canResend, setCanResend] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+const email = location.state?.email;
 
   useEffect(() => {
     const t = setInterval(() => {
