@@ -7,27 +7,16 @@ import DeleteDialog from '../checklist/DeleteDialog';
 import { deleteAccount } from '../services/userService';
 import { useAuth } from '../context/AuthContext';
 
-
-
 export default function SettingsPage() {
   const [showDelete, setShowDelete] = useState(false);
   const [showChangePw, setShowChangePw] = useState(false);
-
-
   const { onLogout } = useAuth();
-
-  const {
-  user,
-} = useAuth();
+  const {user} = useAuth();
 
 if (!user) {
   return <div>Loading...</div>;
 }
-
- console.log(user);
- 
-
-  return (
+return (
     <>
       {showDelete && (
         <DeleteDialog
@@ -76,10 +65,14 @@ if (!user) {
           user={user!}
         />
 
-        <AccountSection
-          onDeleteAccount={() => setShowDelete(true)}
-          onChangePassword={() => setShowChangePw(true)}
-        />
+         <AccountSection
+  onDeleteAccount={() => setShowDelete(true)}
+  onChangePassword={
+    user.provider === "local"
+      ? () => setShowChangePw(true)
+      : undefined
+  }
+/>
       </div>
     </>
   );

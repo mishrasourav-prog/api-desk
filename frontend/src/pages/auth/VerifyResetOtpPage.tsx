@@ -39,12 +39,7 @@ export default function VerifyEmailPage() {
   }
 });
 
-     
-
-
-      
-
-    }catch (error: unknown) {
+  }catch (error: unknown) {
     if (axios.isAxiosError(error)) {
       setError(
         error.response?.data?.message || "Registration failed"

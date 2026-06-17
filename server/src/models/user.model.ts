@@ -12,7 +12,7 @@ const UserSchema = new Schema({
         required:true,
         unique:true,
         minlength: 5,
-        maxlength: 20,
+        maxlength: 40,
         trim:true,
         },
     password:{
@@ -38,6 +38,11 @@ const UserSchema = new Schema({
   refreshToken: {
     type: String,
     default: null
+},
+provider: {
+  type: String,
+  enum: ["local", "google"],
+  default: "local"
 }
     },
     {

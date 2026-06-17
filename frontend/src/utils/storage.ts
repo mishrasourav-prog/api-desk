@@ -123,9 +123,15 @@ export function saveEndpoints(data: DeckCardData[]): void {
 }
 
 export function buildMockUrl(creator: string, path: string) {
+  const baseURL = import.meta.env.VITE_API_BASE_URL;
+
+  if (!baseURL) {
+    throw new Error("VITE_API_BASE_URL is not defined");
+  }
+
   const cleanPath = path.startsWith('/') ? path : `/${path}`;
-  // 🌟 Ensure there is no hardcoded slash before ${cleanPath}
-  return `http://localhost:5000/api/mock/${creator}${cleanPath}`;
+
+  return `${baseURL}/mock/${creator}${cleanPath}`;
 }
 
 export function createNewEndpoint(

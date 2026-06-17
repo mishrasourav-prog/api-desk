@@ -13,7 +13,7 @@ interface AuthContextType {
   user: User | null;
   setUser: React.Dispatch<React.SetStateAction<User | null>>;
 
-  onLoginSuccess: () => void;
+  onLoginSuccess: () => Promise<void>;
   onRegisterSuccess: (email: string) => void;
   onLogout: () => void;
 }
@@ -26,51 +26,63 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [pendingEmail, setPendingEmail] = useState('');
   const [user, setUser] = useState<User | null>(null);
   const navigate = useNavigate();
+ 
+  const onLoginSuccess = async () => {
+  try {
+    const response = await api.get("/user/me");
 
-  const onLoginSuccess = () => {
+    setUser(response.data.data);
     setIsAuthenticated(true);
-    navigate('/app/dashboard');
-  };
+
+    navigate("/app/dashboard");
+
+  } catch (error) {
+    console.error(error);
+  }
+};
 
   const onRegisterSuccess = (email: string) => {
     setPendingEmail(email);
     navigate('/email-sent');
   };
 
-   const onLogout = async () => {
-  await api.post("/auth/logout");
+  const onLogout = async () => {
+  try {
+    await api.post("/auth/logout");
+  } catch (error) {
+    console.error(error);
+  } finally {
+    setUser(null);
+    setIsAuthenticated(false);
 
-  setUser(null);
-  setIsAuthenticated(false);
-
-  navigate("/login");
+    navigate("/login");
+  }
 };
 
   useEffect(() => {
   const checkAuth = async () => {
     try {
-     const response = await api.get("/user/me");
-     console.log(response.data);
+      const response = await api.get("/user/me");
 
-setUser(response.data.data);
-setIsAuthenticated(true);
-      
-    } catch {
-      try{
+      setUser(response.data.data);
+      setIsAuthenticated(true);
+
+    } catch (error) {
+         console.error(error);
+      try {
         await api.post("/auth/refresh");
+
         const response = await api.get("/user/me");
 
-setUser(response.data.data);
-setIsAuthenticated(true);
+        setUser(response.data.data);
+        setIsAuthenticated(true);
 
-
-      }catch{
+      } catch {
+        setUser(null);
         setIsAuthenticated(false);
-        
-
       }
-    } 
-    finally{
+
+    } finally {
       setIsLoading(false);
     }
   };

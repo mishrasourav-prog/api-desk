@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import type { User } from '../types';
 import FieldInput from '../components/ui/FieldInput';
 import { useAuth } from '../context/AuthContext';
-import api from '../config/axiosInstance.Config';
 import axios from 'axios';
+import { updateUser } from '../services/userService';
 
 const FIELDS: { label: string; key: keyof User; type: string }[] = [
   { label: 'Full name', key: 'name', type: 'text' },
@@ -15,7 +15,6 @@ const FIELDS: { label: string; key: keyof User; type: string }[] = [
 export default function EditProfilePage() {
   const navigate = useNavigate();
   const { user, setUser } = useAuth();
-
   const [form, setForm] = useState<User>({ ...user! });
   const [saved, setSaved] = useState(false);
 
@@ -26,14 +25,12 @@ export default function EditProfilePage() {
 
 async function handleSave() {
   try {
-    await api.patch("/user/edit", {
-      name: form.name,
-      username: form.username,
-      email: form.email,
-    });
-
+    await updateUser({
+  name: form.name,
+  username: form.username,
+  email: form.email,
+});
     setUser(form); 
-
     setSaved(true);
 
     setTimeout(() => {
@@ -90,14 +87,31 @@ async function handleSave() {
       >
         {FIELDS.map(({ label, key, type }) => (
           <FieldInput
-            key={key}
-            label={label}
-            type={type}
-            value={form[key] as string}
-            onChange={set(key)}
-          />
+  key={key}
+  label={label}
+  type={type}
+  value={form[key] as string}
+  onChange={set(key)}
+  disabled={
+    key === "email" && user?.provider === "google"
+  }
+/>
         ))}
       </div>
+
+      {user?.provider === "google" && (
+  <p
+    style={{
+      color: "#8b949e",
+      fontSize: 12,
+      marginBottom: 16,
+      lineHeight: 1.5,
+    }}
+  >
+    Your email address is managed by Google and cannot be changed.
+  </p>
+)}
+
 
       {/* Actions */}
       <div style={{ display: 'flex', gap: 10 }}>

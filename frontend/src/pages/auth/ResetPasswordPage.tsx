@@ -5,8 +5,9 @@ import AuthCard from '../../components/auth/AuthCard';
 import AuthInput from '../../components/auth/AuthInput';
 import PasswordStrengthMeter from '../../components/auth/PasswordStrengthMeter';
 import { useNavigate } from 'react-router-dom';
-import api from '../../config/axiosInstance.Config.ts';
 import { useLocation } from "react-router-dom";
+import { resetPassword } from '../../services/userService.ts';
+
 
 
 
@@ -18,9 +19,6 @@ export default function ResetPasswordPage() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  
-
- 
   const checks = [
     { label: 'At least 8 characters', ok: password.length >= 8 },
     { label: 'One uppercase letter', ok: /[A-Z]/.test(password) },
@@ -39,22 +37,13 @@ export default function ResetPasswordPage() {
   }
 
   const email = location.state?.email;
-const otp = location.state?.otp;
+  const otp = location.state?.otp;
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (!validate()) return;
     setLoading(true);
-    console.log({
-  email,
-  otp,
-  newpassword: password
-});
-    await api.post("/auth/reset-password", {
-  email,
-  otp,
-  newpassword: password
-});
+    await resetPassword(email, otp, password);
 navigate("/login");
   }
 

@@ -59,7 +59,6 @@ function getStrength(pw: string): { score: number; label: string; color: string 
   return { score, ...map[score] };
 }
 
-// ✅ FIX: Moved PasswordField component completely outside of the parent component render scope
 function PasswordField({
   label, value, onChange, error, show, onToggle, placeholder,
 }: {
@@ -304,7 +303,6 @@ const [serverError, setServerError] = useState('');
   </p>
 )}
 
-            {/* Actions */}
             <div style={{ display: 'flex', gap: 10, paddingTop: 4, borderTop: '1px solid #21262d' }}>
               <button
                 onClick={onCancel}

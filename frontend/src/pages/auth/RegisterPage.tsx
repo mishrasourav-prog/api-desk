@@ -6,10 +6,10 @@ import AuthInput from '../../components/auth/AuthInput';
 import AuthDivider from '../../components/auth/AuthDivider';
 import OAuthButtons from '../../components/auth/OAuthButtons';
 import PasswordStrengthMeter from '../../components/auth/PasswordStrengthMeter';
-import api from "../../config/axiosInstance.Config.ts";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import toast from "react-hot-toast";
+
+import { registerUser } from '../../services/userService.ts';
 
 
 export default function RegisterPage() {
@@ -45,25 +45,22 @@ export default function RegisterPage() {
       setLoading(true);
       setErrors({});
 
-      const response = await api.post("/auth/register", {
-        name: `${form.firstName} ${form.lastName}`.trim(),
-        email: form.email,
-        username: form.username,
-        password: form.password,
-      });
+      await registerUser({
+  name: `${form.firstName} ${form.lastName}`.trim(),
+  email: form.email,
+  username: form.username,
+  password: form.password,
+});
 
-      console.log(response.data);
+      
 
       navigate("/login");
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
-        const message = error.response?.data?.message || "Registration failed";
         setErrors({
           form: error.response?.data?.message || "Registration failed",
         });
-        toast.error(message);
-      } else {
-        toast.error("Registration failed");
+        
       }
     } finally {
       setLoading(false);

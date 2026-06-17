@@ -6,11 +6,10 @@ import AuthBrand from '../../components/auth/AuthBrand';
 import AuthInput from '../../components/auth/AuthInput';
 import AuthDivider from '../../components/auth/AuthDivider';
 import OAuthButtons from '../../components/auth/OAuthButtons';
-import api from "../../config/axiosInstance.Config.ts";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import toast from "react-hot-toast";
+import { loginUser } from '../../services/userService.ts';
 
 
 export default function LoginPage() {
@@ -42,29 +41,20 @@ export default function LoginPage() {
     setLoading(true);
     setErrors({});
 
-    const response = await api.post("/auth/login", {
-      email,
-      password,
-    });
-
-    console.log(response.data);
+    await loginUser({ email, password });
 
     setSuccess(true);
     onLoginSuccess();
 
-    // ✅ redirect to dashboard
     setTimeout(() => {
-      console.log("NAVIGATING NOW");
       navigate("/app/dashboard");
     }, 800);
 
   } catch (error: unknown) {
     if (axios.isAxiosError(error)) {
-      const message = error.response?.data?.message || "Registration failed";
       setErrors({
         form: error.response?.data?.message || "Login failed",
       });
-      toast.error(message);
     } else {
       setErrors({
         form: "An unexpected error occurred",

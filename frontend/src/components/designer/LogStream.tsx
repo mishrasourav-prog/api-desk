@@ -8,6 +8,7 @@ interface LogStreamProps {
   endpointPath: string;
   method: HttpMethod;
   initialLogs: SubCardLog[];
+   deckId: string;
 }
 
 function timeAgo(iso: string): string {
@@ -20,7 +21,7 @@ function timeAgo(iso: string): string {
   return `${Math.floor(diff / 3600)}h ago`;
 }
 
-export default function LogStream({ initialLogs }: LogStreamProps) {
+export default function LogStream({   deckId,initialLogs }: LogStreamProps) {
   const [logs, setLogs] = useState<SubCardLog[]>(initialLogs);
   const [live, setLive] = useState(true);
 
@@ -30,18 +31,18 @@ export default function LogStream({ initialLogs }: LogStreamProps) {
   const { user } = useAuth();
   const username = user?.username;
 
-  // Keep ref synced with state
+  
   useEffect(() => {
     liveRef.current = live;
   }, [live]);
 
-  // Load previous logs from MongoDB
+
   useEffect(() => {
     async function loadLogs() {
       try {
-        const response = await api.get(`/logs/recent/${username}`);
+        const response = await api.get(`/logs/recent/${username}/${deckId}`);
 
-        setLogs(response.data.logs);
+        setLogs(response.data.data.logs);
       } catch (error) {
         console.error("Failed loading previous logs:", error);
       }
@@ -52,14 +53,26 @@ export default function LogStream({ initialLogs }: LogStreamProps) {
     }
   }, [username]);
 
-  // Live SSE connection
+  const baseURL = import.meta.env.VITE_API_BASE_URL;
+
+ 
   useEffect(() => {
     if (!username) return;
 
-    // HARDCODED URL: Log stream endpoint - moved to environment variable
-    const eventSource = new EventSource(
-      `${import.meta.env.VITE_API_BASE_URL || "http://localhost:5000"}/api/logs/stream/${username}`
-    );
+//     const token = localStorage.getItem("accessToken");
+
+//     if (!token) {
+//   console.error("No token found");
+//   return;
+// }
+
+   
+ const eventSource = new EventSource(
+  `${baseURL}/logs/stream/${deckId}`,
+  {
+    withCredentials: true
+  }
+);
 
     eventSource.onopen = () => {
       console.log("SSE connected");
@@ -112,6 +125,7 @@ export default function LogStream({ initialLogs }: LogStreamProps) {
           <span className="text-xs font-semibold text-[#f0f6fc]">
             Live Request Log
           </span>
+          
 
           <span className="text-[10px] text-[#8b949e] font-mono bg-[#161b22] border border-[#30363d] px-1.5 py-0.5 rounded">
             {logs.length} entries

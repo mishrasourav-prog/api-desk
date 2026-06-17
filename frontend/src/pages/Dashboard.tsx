@@ -2,9 +2,10 @@ import { useState , useEffect } from 'react';
 import DeckCard from '../components/dashboard/DeckCard';
 import EmptyState from '../components/dashboard/EmptyState';
 import { useEndpoints } from '../context/EndpointContext';
-import api from '../config/axiosInstance.Config';
 import type { Deck } from '../types/deck';
 import { useNavigate } from 'react-router-dom';
+import { getUserDecks } from '../services/userService';
+import { deleteDeck } from '../services/userService';
 
 export default function Dashboard() {
    const {onCreateNew} = useEndpoints();
@@ -31,12 +32,9 @@ const filtered = decks.filter(deck => {
 useEffect(() => {
   const fetchDecks = async () => {
     try {
-      const response = await api.get("/deck/list");
+      const response = await getUserDecks();
       console.log(response.data);
-      console.log(response.data.decks);
-      setDecks(response.data.data.decks);
-      console.log("DECKS:", decks);
-
+      setDecks(response.data.decks);
     } catch (error) {
       console.error(error);
     }
@@ -47,7 +45,7 @@ useEffect(() => {
 
 const handleDelete = async (id: string) => {
   try {
-    const response = await api.delete(`/deck/${id}`);
+    const response = await deleteDeck(id);
 
     if (response.data.success) {
       setDecks(prev => prev.filter(d => d._id !== id));

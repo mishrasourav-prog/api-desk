@@ -93,7 +93,7 @@ export default function AppRoutes() {
         }
       />
 
-      {/* FALLBACK */}
+      /* FALLBACK */
       <Route path="*" element={<Navigate to={'/app/dashboard'} />} />
     </Routes>
   );

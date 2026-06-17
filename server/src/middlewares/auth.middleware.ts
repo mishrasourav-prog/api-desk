@@ -6,14 +6,7 @@ export const verifyJWT = (
   res: Response,
   next: NextFunction
 ): void => {
-
-    console.log("COOKIES RECEIVED:", req.cookies);
-  console.log("HEADERS:", req.headers.cookie);
-
   const token = req.cookies.accessToken;
-
- 
-
   if (!token) {
     res.status(401).json({
       message: "Unauthorized",

@@ -8,7 +8,13 @@ type Props = {
 export default function ProtectedRoute({ children }: Props) {
   const { isAuthenticated, isLoading } = useAuth();
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) {
+  return (
+    <div className="flex items-center justify-center h-screen text-[#8b949e]">
+      Loading...
+    </div>
+  );
+}
 
   return isAuthenticated
     ? <>{children}</>

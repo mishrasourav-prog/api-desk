@@ -1,38 +1,83 @@
 import api from "../config/axiosInstance.Config";
+import { handleApiResponse } from "../utils/apiHandler";
+import { handleApiError } from "../utils/apiError";
 
 export const getCurrentUser = async () => {
-  const res = await api.get("/user/me");
-  return res.data;
+  try {
+    const res = await api.get("/user/me");
+    return handleApiResponse(res);
+  } catch (err) {
+    handleApiError(err);
+  }
 };
 
-export const updateUser = async (data: {
-  firstName?: string;
-  lastName?: string;
-  username?: string;
-  email?: string;
-}) => {
-  return api.patch("/user/edit", data);
-};
 
 export const changePassword = async (data: {
   currpassword: string;
   newpassword: string;
 }) => {
-  return api.patch("/user/change-password", data);
+  try {
+    const res = await api.patch("/user/change-password", data);
+    return handleApiResponse(res);
+  } catch (err) {
+    handleApiError(err);
+  }
 };
 
 export const deleteAccount = async () => {
-  return api.delete("/user/delete", {
-    data: {
-      DELETE: "DELETE",
-    },
-  });
+  try {
+    await api.post("/auth/refresh");
+
+    const res = await api.delete("/user/delete", {
+      data: { DELETE: "DELETE" },
+    });
+
+    return handleApiResponse(res);
+  } catch (err) {
+    handleApiError(err);
+  }
 };
 
 export const forgotPassword = async (email: string) => {
-  return api.post("/user/forgot-password", {
-    email,
-  });
+  try {
+    const res = await api.post("/user/forgot-password", {
+      email,
+    });
+
+    return handleApiResponse(res);
+  } catch (err) {
+    handleApiError(err);
+  }
+};
+
+
+
+export const loginUser = async (data: {
+  email: string;
+  password: string;
+}) => {
+  try {
+    const res = await api.post("/auth/login", data);
+
+    return handleApiResponse(res); // ✅ backend message → toast.success
+  } catch (err) {
+    handleApiError(err); // ✅ backend error → toast.error
+  }
+};
+
+export const registerUser = async (data: {
+  name: string;
+  email: string;
+  username: string;
+  password: string;
+}) => {
+  try {
+    const res = await api.post("/auth/register", data);
+
+    return handleApiResponse(res); // ✅ backend success message → toast
+  } catch (err) {
+    handleApiError(err); // ❌ backend error message → toast
+  }
 };
 
 export const resetPassword = async (
@@ -40,9 +85,94 @@ export const resetPassword = async (
   otp: string,
   newpassword: string
 ) => {
-  return api.post("/user/reset-password", {
-    email,
-    otp,
-    newpassword,
-  });
+  try {
+    const res = await api.post("/auth/reset-password", {
+      email,
+      otp,
+      newpassword,
+    });
+
+    return handleApiResponse(res); // ✅ backend success message → toast.success
+  } catch (err) {
+    handleApiError(err); // ❌ backend error message → toast.error
+  }
+};
+
+export const getUserDecks = async () => {
+  try {
+    const res = await api.get("/deck/list");
+
+    return handleApiResponse(res); // ✅ uses backend message if any
+  } catch (err) {
+    handleApiError(err); // ❌ backend error message → toast.error
+  }
+};
+
+export const deleteDeck = async (id: string) => {
+  try {
+    const res = await api.delete(`/deck/${id}`);
+
+    return handleApiResponse(res); // ✅ backend success message → toast.success
+  } catch (err) {
+    handleApiError(err); // ❌ backend error message → toast.error
+  }
+};
+
+export const getDeckById = async (id: string) => {
+  try {
+    const res = await api.get(`/deck/${id}`);
+
+    return handleApiResponse(res); // ✅ uses backend success message if present
+  } catch (err) {
+    handleApiError(err); // ❌ backend error message → toast.error
+  }
+};
+
+export const updateDeck = async (
+  id: string,
+  data: {
+    path: string;
+    method: string;
+    responseStatus: number;
+    responseBody: unknown;
+    description?: string;
+  }
+) => {
+  try {
+    const res = await api.put(`/deck/${id}`, data);
+
+    return handleApiResponse(res); // ✅ backend success message → toast.success
+  } catch (err) {
+    handleApiError(err); // ❌ backend error message → toast.error
+  }
+};
+
+export const createDeck = async (data: {
+  path: string;
+  method: string;
+  responseStatus: number;
+  responseBody: unknown;
+  description?: string;
+}) => {
+  try {
+    const res = await api.post("/deck/create", data);
+
+    return handleApiResponse(res); // ✅ backend success message → toast.success
+  } catch (err) {
+    handleApiError(err); // ❌ backend error message → toast.error
+  }
+};
+
+export const updateUser = async (data: {
+  name?: string;
+  username?: string;
+  email?: string;
+}) => {
+  try {
+    const res = await api.patch("/user/edit", data);
+
+    return handleApiResponse(res); // ✅ backend success message → toast.success
+  } catch (err) {
+    handleApiError(err); // ❌ backend error message → toast.error
+  }
 };

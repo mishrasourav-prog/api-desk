@@ -3,6 +3,12 @@ import mongoose from "mongoose";
 const {Schema} = mongoose;
 
 const deckSchema = new Schema({
+    userId: {
+  type: Schema.Types.ObjectId,
+  ref: "User",
+  required: true,
+  index: true,
+},
     creator:{
         type:String,
         required:true,

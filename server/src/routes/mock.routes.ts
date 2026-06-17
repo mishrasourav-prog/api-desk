@@ -3,8 +3,6 @@ import { Router, RequestHandler } from 'express';
 import { executeMock } from '../controllers/mockEngine.controller';
 
 const router = Router();
-
-// Acts as a catch-all prefix router for this file
 router.use('/', executeMock as RequestHandler);
 
 export default router;

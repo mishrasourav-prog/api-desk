@@ -28,9 +28,7 @@ import { ApiError } from './utils/apiError';
 
 const app = express();
 
-// 1. Global Pre-Middlewares
-// HARDCODED URL: Frontend origin for CORS - moved to environment variable
-const frontendOrigin = process.env.FRONTEND_ORIGIN || "http://localhost:5173";
+const frontendOrigin = process.env.FRONTEND_ORIGIN!;
 app.use(cors({
   origin: frontendOrigin,
   credentials: true,
@@ -42,7 +40,6 @@ app.use(passport.initialize());
 // Database Connection
 connectDb();
 
-// 2. Base & Health Check Routes
 app.get('/', (req, res) => {
     res.send("hello world from API-Deck backend!");
 });
@@ -62,7 +59,7 @@ app.use((req, res, next) => {
 // 5. Global Centralized Error Interceptor (MUST be the absolute bottom)
 app.use(errorHandler);
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT!;
 app.listen(port, () => {
     console.log(`🚀 API-Deck Server running smoothly on port ${port}`);
 });

@@ -4,7 +4,8 @@ import type { HttpMethod, HttpStatus } from "../types/deck";
 import EndpointForm from "../components/designer/EndpointForm";
 import CodeEditor from "../components/shared/CodeEditor";
 import LogStream from "../components/designer/LogStream";
-import api from "../config/axiosInstance.Config";
+import { getDeckById , updateDeck , createDeck } from "../services/userService";
+
 
 
 const DEFAULT_BODY = JSON.stringify(
@@ -26,15 +27,13 @@ export default function DeckDesigner() {
   const [body, setBody] = useState(DEFAULT_BODY);
   const [description, setDescription] = useState("");
 
-  // ---------------- EDIT MODE ----------------
   useEffect(() => {
     if (!id) return;
 
     const fetchDeck = async () => {
       try {
-        const response = await api.get(`/deck/${id}`);
-        console.log("FULL RESPONSE:", response.data);
-        const deck = response.data.data.deck;
+        const response = await getDeckById(id);
+        const deck = response.data.deck;
 
         setPath(deck.path);
         setMethod(deck.method);
@@ -49,7 +48,6 @@ export default function DeckDesigner() {
     fetchDeck();
   }, [id]);
 
-  // ---------------- JSON VALIDATION ----------------
   function isValidJson(str: string) {
     try {
       JSON.parse(str);
@@ -59,16 +57,8 @@ export default function DeckDesigner() {
     }
   }
 
-  // ---------------- SAVE / UPDATE ----------------
+
 async function handleSave() {
-    console.log("FINAL DESCRIPTION:", description);
-    console.log("SENDING PAYLOAD:", {
-  path,
-  method,
-  status,
-  body,
-  description
-});
   if (!path.trim()) {
     alert("Please provide a valid path.");
     return;
@@ -84,23 +74,21 @@ async function handleSave() {
 
   try {
     if (id) {
-      // EDIT existing deck
-      await api.put(`/deck/${id}`, {
-        path: sanitizedPath.trim(),
-        method,
-        responseStatus: Number(status),
-        responseBody: body,
-        description: finalDescriptionText,
-      });
-    } else {
-      // CREATE new deck
-      await api.post("/deck/create", {
-        path: sanitizedPath.trim(),
-        method,
-        responseStatus: Number(status),
-        responseBody: body,
-        description: finalDescriptionText,
-      });
+      await updateDeck(id, {
+  path: sanitizedPath.trim(),
+  method,
+  responseStatus: Number(status),
+  responseBody: body,
+  description: finalDescriptionText,
+});
+    } else{
+      await createDeck({
+  path: sanitizedPath.trim(),
+  method,
+  responseStatus: Number(status),
+  responseBody: body,
+  description: finalDescriptionText,
+});
     }
 
     navigate("/app/dashboard");
@@ -165,6 +153,7 @@ async function handleSave() {
 
         <div className="flex-1 bg-[#0d1117]">
           <LogStream
+            deckId={id!}
             endpointPath={path || "new"}
             method={method}
             initialLogs={[]}

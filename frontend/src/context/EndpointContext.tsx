@@ -22,7 +22,6 @@ export function EndpointProvider({ children }: { children: ReactNode }) {
   };
 
   const onOpenEndpoint = (card: DeckCardData) => {
-    // Pass state via router — no prop drilling
     navigate('/app/designer', { state: { card } });
   };
 

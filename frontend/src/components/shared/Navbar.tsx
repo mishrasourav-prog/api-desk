@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 
 
 
+
 export default function Navbar() {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -13,7 +14,6 @@ export default function Navbar() {
   const navigate = useNavigate();
 
   const {user} = useAuth();
- 
 
   useEffect(() => {
     function handle(e: MouseEvent) {

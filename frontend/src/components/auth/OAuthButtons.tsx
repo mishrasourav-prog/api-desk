@@ -19,7 +19,7 @@ export default function OAuthButtons({ label }: OAuthButtonsProps) {
       <button
         onClick={() => {
           // HARDCODED URL: Google OAuth endpoint - moved to environment variable
-          window.location.href = import.meta.env.VITE_GOOGLE_AUTH_URL || "http://localhost:5000/api/auth/google";
+          window.location.href = import.meta.env.VITE_GOOGLE_AUTH_URL;
         }}
         className="flex items-center justify-center gap-2.5 w-full bg-[#21262d] border border-[#30363d] rounded-md py-2 text-xs text-[#c9d1d9] hover:bg-[#2d333b] hover:border-[#8b949e] transition-all"
       >

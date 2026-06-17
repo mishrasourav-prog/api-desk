@@ -12,7 +12,6 @@ router.use(verifyJWT);
 router.post("/create", validate(createMockRouteSchema) , createDeck);      
 router.get("/list", getUserDecks);        
 router.delete("/:id", (req, res, next) => {
-  console.log("DELETE ROUTE HIT:", req.params.id);
   next();
 }, deleteDeck);      
 

@@ -25,13 +25,13 @@ export default function EndpointForm({
   const {user} = useAuth();
   return (
     <div className="flex flex-col gap-4">
-      {/* Method + Path */}
+    
       <div>
         <label className="block text-[11px] text-[#8b949e] font-semibold uppercase tracking-widest mb-1.5">
           Method & Path
         </label>
         <div className="flex items-stretch gap-0 rounded-md overflow-hidden border border-[#30363d] focus-within:border-[#58a6ff] focus-within:ring-1 focus-within:ring-[#58a6ff] transition-colors">
-          {/* Method selector */}
+         
           <select
             value={method}
             onChange={e => onMethodChange(e.target.value as HttpMethod)}
@@ -41,11 +41,11 @@ export default function EndpointForm({
               <option key={m} value={m} className="text-white bg-[#0d1117]">{m}</option>
             ))}
           </select>
-          {/* Path prefix */}
+         
           <span className="flex items-center px-2.5 bg-[#161b22] text-[#6e7681] font-mono text-xs shrink-0 border-r border-[#30363d] select-none whitespace-nowrap">
             api/mock/{user?.username}
           </span>
-          {/* Path input */}
+          
           <input
             type="text"
             value={path}
@@ -56,7 +56,7 @@ export default function EndpointForm({
         </div>
       </div>
 
-      {/* Status code */}
+      
       <div>
         <label className="block text-[11px] text-[#8b949e] font-semibold uppercase tracking-widest mb-1.5">
           Response Status
@@ -72,7 +72,7 @@ export default function EndpointForm({
         </select>
       </div>
 
-      {/* Description */}
+      
       <div>
         <label className="block text-[11px] text-[#8b949e] font-semibold uppercase tracking-widest mb-1.5">
           Description <span className="text-[#6e7681] normal-case tracking-normal">(optional)</span>
