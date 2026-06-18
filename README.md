@@ -370,25 +370,18 @@ All routes are prefixed with `/api`.
 ## Screenshots
 
 <div align="center">
-
 ### Login
-<img src="./assets/login.png" alt="Login Page" width="700" />
-
+<img src="./frontend/assets/login.png" alt="Login Page" width="700" />
 ### Register
-<img src="./assets/register.png" alt="Register Page" width="700" />
-
+<img src="./frontend/assets/register.png" alt="Register Page" width="700" />
 ### Forgot Password
-<img src="./assets/forgot-password.png" alt="Forgot Password Page" width="700" />
-
+<img src="./frontend/assets/forgot-password.png" alt="Forgot Password Page" width="700" />
 ### Dashboard
-<img src="./assets/dashboard.png" alt="Dashboard" width="700" />
-
+<img src="./frontend/assets/dashboard.png" alt="Dashboard" width="700" />
 ### Clean Dashboard
-<img src="./assets/clean_dashboard.png" alt="Clean Dashboard" width="700" />
-
+<img src="./frontend/assets/clean_dashboard.png" alt="Clean Dashboard" width="700" />
 ### Deck Designer
-<img src="./assets/deck_designer.png" alt="Deck Designer" width="700" />
-
+<img src="./frontend/assets/deck_designer.png" alt="Deck Designer" width="700" />
 </div>
 
 ---
