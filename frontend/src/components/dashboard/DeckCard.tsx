@@ -3,6 +3,7 @@ import { buildMockUrl } from '../../utils/storage';
 import MethodBadge from '../shared/MethodBadge';
 import StatusBadge from '../shared/StatusBadge';
 import type { Deck } from '../../types/deck';
+import ConfirmDeleteDialog from '../../checklist/ConfirmDialog';
 
 interface DeckCardProps {
   deck: Deck;
@@ -16,6 +17,8 @@ export default function DeckCard({
   onDeckDeleted,
 }: DeckCardProps) {
   const [copied, setCopied] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   function handleCopy(e: React.MouseEvent) {
     e.stopPropagation();
@@ -26,20 +29,38 @@ export default function DeckCard({
     });
   }
 
-  const handleDelete = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    const ok = window.confirm(
-  `Delete endpoint: ${deck.method} ${deck.path.startsWith('/') ? deck.path : `/${deck.path}`}?`
-);
-    if (!ok) return;
-    onDeckDeleted?.(deck._id);
-  };
+//   const handleDelete = (e: React.MouseEvent) => {
+//     e.stopPropagation();
+//     const ok = window.confirm(
+//   `Delete endpoint: ${deck.method} ${deck.path.startsWith('/') ? deck.path : `/${deck.path}`}?`
+// );
+//     if (!ok) return;
+//     onDeckDeleted?.(deck._id);
+//   };
+
+const handleDelete = (e: React.MouseEvent) => {
+  e.stopPropagation();
+  setShowDeleteDialog(true);
+};
+
+const confirmDelete = async () => {
+  try {
+    setLoading(true);
+
+    await onDeckDeleted?.(deck._id);
+
+    setShowDeleteDialog(false);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleOpen = () => {
     onOpen?.(deck);
   };
 
   return (
+    <>
     <div
       onClick={handleOpen}
       className="bg-[#161b22] border border-[#30363d] rounded-lg p-4 relative overflow-hidden hover:border-[#8b949e] transition-all flex flex-col gap-3 shadow-sm cursor-pointer group"
@@ -88,5 +109,19 @@ export default function DeckCard({
         </button>
       </div>
     </div>
+    <ConfirmDeleteDialog
+      open={showDeleteDialog}
+      title="Delete Endpoint"
+      description={`Delete ${deck.method} ${
+        deck.path.startsWith('/')
+          ? deck.path
+          : `/${deck.path}`
+      }? This action cannot be undone.`}
+      onCancel={() => setShowDeleteDialog(false)}
+      onConfirm={confirmDelete}
+      loading={loading}
+    />
+    </>
+    
   );
 }
