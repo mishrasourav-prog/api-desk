@@ -4,7 +4,6 @@ import { Request, Response, NextFunction } from "express";
 import {User} from "../models/user.model";
 import { ApiResponse } from "../utils/apiResponse";
 import { ApiError } from "../utils/apiError";
-// import { AuthRequest } from "../types/authRequest";
 import { ResetPass } from "../models/passwordReset.model";
 import { transporter } from "../utils/sendEmail";
 import validator from "validator";
@@ -105,15 +104,15 @@ export const loginUser = async (
 
     res.cookie("accessToken", accessToken, {
         httpOnly: true,
-        secure: false, 
-        sameSite: "lax",
-        maxAge: 15 * 60 * 1000, // 15 min
+        secure: true, 
+        sameSite: "none",
+        maxAge: 15 * 60 * 1000, 
       });
 
     res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
-        secure: false, 
-        sameSite: "lax",
+        secure: true, 
+        sameSite: "none",
         maxAge: 7 * 24 * 60 * 60 * 1000,
       });
 
@@ -141,15 +140,15 @@ export const logoutUser = async (
 ) => {
   res.clearCookie("accessToken", {
   httpOnly: true,
-  secure: false,
-  sameSite: "lax",
+  secure: true,
+  sameSite: "none",
    
 });
 
 res.clearCookie("refreshToken", {
   httpOnly: true,
-  secure: false,
-  sameSite: "lax",
+  secure: true,
+  sameSite: "none",
  
 });
 
@@ -179,8 +178,8 @@ export const refreshAccessToken = async (req: Request, res: Response, next: Next
 
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
-      secure: false,
-      sameSite: "lax",
+      secure: true,
+      sameSite: "none",
       maxAge: 15 * 60 * 1000,
     });
 
@@ -243,14 +242,14 @@ export const changePassword = async (
     // clear cookies
     res.clearCookie("accessToken", {
       httpOnly: true,
-      secure: false,
-      sameSite: "lax",
+      secure: true,
+      sameSite: "none",
     });
 
     res.clearCookie("refreshToken", {
       httpOnly: true,
-      secure: false,
-      sameSite: "lax",
+      secure: true,
+      sameSite: "none",
     });
 
     // success response
@@ -415,14 +414,14 @@ export const googleCallbackController = async (req: Request, res: Response, next
 
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
-      secure: false,
-      sameSite: "lax",
+      secure: true,
+      sameSite: "none",
     });
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: false,
-      sameSite: "lax",
+      secure: true,
+      sameSite: "none",
     });
 
     return res.redirect(process.env.FRONTEND_DASHBOARD_URL!);
