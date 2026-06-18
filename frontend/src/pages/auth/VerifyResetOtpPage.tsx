@@ -2,7 +2,8 @@ import { useRef, useState } from 'react';
 import AuthCard from '../../components/auth/AuthCard';
 import { useNavigate } from 'react-router-dom';
 import { useLocation } from "react-router-dom";
-import { verifyOtp } from '../../services/userService';
+import { verifyOtp , resendOtp } from '../../services/userService';
+import axios from "axios";
 
 
 
@@ -50,10 +51,32 @@ export default function VerifyEmailPage() {
     });
 
   } catch (error) {
-
-    setError("Invalid OTP");
-  } finally {
+  if (axios.isAxiosError(error)) {
+    setError(
+      error.response?.data?.message || "Verification failed"
+    );
+  } else {
+    setError("Verification failed");
+  }
+} finally {
     setLoading(false);
+  }
+}
+
+async function handleResendOtp() {
+  try {
+    setError("");
+
+    await resendOtp(email);
+
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      setError(
+        error.response?.data?.message || "Failed to resend OTP"
+      );
+    } else {
+      setError("Failed to resend OTP");
+    }
   }
 }
 
@@ -96,7 +119,12 @@ export default function VerifyEmailPage() {
 
       <p className="text-center text-[11px] text-[#6e7681] mt-4">
         Didn't receive it?{' '}
-        <button className="text-[#58a6ff] hover:underline">Resend code</button>
+        <button
+  onClick={handleResendOtp}
+  className="text-[#58a6ff] hover:underline"
+>
+  Resend code
+</button>
       </p>
     </AuthCard>
   );

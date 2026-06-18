@@ -294,9 +294,26 @@ export const generateOtp = async (req: Request, res: Response, next: NextFunctio
 
     const existingOtp = await ResetPass.findOne({ userId: user._id });
 
-    if (existingOtp && existingOtp.expiresAt > new Date()) {
-      return next(new ApiError(429, "OTP already sent. Please wait"));
-    }
+if (existingOtp) {
+  const twoMinutesPassed =
+    Date.now() - existingOtp.createdAt.getTime() >= 2 * 60 * 1000;
+
+  if (!twoMinutesPassed) {
+    const remainingSeconds = Math.ceil(
+      (2 * 60 * 1000 -
+        (Date.now() - existingOtp.createdAt.getTime())) /
+        1000
+    );
+
+    return next(
+      new ApiError(
+        429,
+        `Please wait ${remainingSeconds} seconds before requesting another OTP`
+      )
+    );
+  }
+}
+
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
 

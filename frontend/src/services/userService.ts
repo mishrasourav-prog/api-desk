@@ -40,7 +40,7 @@ export const deleteAccount = async () => {
 
 export const forgotPassword = async (email: string) => {
   try {
-    const res = await api.post("/user/forgot-password", {
+    const res = await api.post("/auth/forgot-password", {
       email,
     });
 
@@ -183,6 +183,18 @@ export const verifyOtp = async (email: string, otp: string) => {
     const res = await api.post("/auth/verify-otp", {
       email,
       otp,
+    });
+
+    return res.data;
+  } catch (err) {
+    handleApiError(err);
+  }
+};
+
+export const resendOtp = async (email: string) => {
+  try {
+    const res = await api.post("/auth/forgot-password", {
+      email,
     });
 
     return res.data;
