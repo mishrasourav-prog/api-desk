@@ -113,7 +113,7 @@ API-Deck gives you a **live, authenticated, per-user mock API** accessible over 
 | **Auth** | JWT, HTTP-only Cookies, Passport.js, Google OAuth 2.0, bcryptjs |
 | **Validation** | Zod v4 |
 | **Real-time** | Server-Sent Events (SSE) |
-| **Email** | Nodemailer / Resend |
+| **Email** | Nodemailer |
 | **HTTP Client** | Axios |
 
 ---
@@ -160,7 +160,7 @@ api-desk/
 - **MongoDB** (local instance or [MongoDB Atlas](https://cloud.mongodb.com) free tier)
 - **npm** or **yarn**
 - A Google Cloud project with OAuth 2.0 credentials (optional, for social login)
-- A [Resend](https://resend.com) API key or SMTP credentials (for password reset emails)
+
 
 ### Installation
 
@@ -183,37 +183,28 @@ cd ../frontend && npm install
 
 ```env
 # Server
-PORT=5000
-NODE_ENV=development
+PORT = 
+URI = 
+ACCESS_TOKEN_SECRET=
+REFRESH_TOKEN_SECRET=
+ACCESS_TOKEN_EXPIRY=
+REFRESH_TOKEN_EXPIRY=
+EMAIL_USER=
+EMAIL_PASS=
 
-# MongoDB
-MONGO_URI=mongodb://localhost:27017/api-desk
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GOOGLE_CALLBACK_URL=
 
-# JWT
-JWT_SECRET=your_super_secret_jwt_key
-JWT_EXPIRES_IN=7d
-
-# Cookie
-COOKIE_SECRET=your_cookie_secret
-
-# Google OAuth
-GOOGLE_CLIENT_ID=your_google_client_id
-GOOGLE_CLIENT_SECRET=your_google_client_secret
-GOOGLE_CALLBACK_URL=http://localhost:5000/api/auth/google/callback
-
-# Email (Resend)
-RESEND_API_KEY=re_your_resend_key
-EMAIL_FROM=no-reply@yourdomain.com
-
-# Client URL (for CORS & redirects)
-CLIENT_URL=http://localhost:5173
+FRONTEND_ORIGIN=
+FRONTEND_DASHBOARD_URL=
 ```
 
 **`frontend/.env`**
 
 ```env
-VITE_API_BASE_URL=http://localhost:5000/api
-VITE_SOCKET_URL=http://localhost:5000
+VITE_API_BASE_URL=
+VITE_GOOGLE_AUTH_URL=
 ```
 
 ### Running the App
@@ -334,43 +325,45 @@ All routes are prefixed with `/api`.
 | `POST` | `/login` | Login with email + password | — |
 | `POST` | `/logout` | Clear auth cookie | ✅ |
 | `POST` | `/forgot-password` | Send password reset OTP | — |
-| `POST` | `/verify-reset-otp` | Verify reset OTP | — |
+| `POST` | `/verify-otp` | Verify reset OTP | — |
 | `POST` | `/reset-password` | Set new password | — |
 | `GET` | `/google` | Initiate Google OAuth | — |
 | `GET` | `/google/callback` | Google OAuth callback | — |
+| `POST` | `/refresh` | Refresh Access Token | — |
+| `PUT` | `/change-password` | Change password | ✅ |
+
 
 ### User Routes `/api/user`
 
 | Method | Path | Description | Auth |
 |---|---|---|---|
 | `GET` | `/me` | Get current user profile | ✅ |
-| `PUT` | `/me` | Update profile | ✅ |
-| `PUT` | `/change-password` | Change password | ✅ |
+| `PUT` | `/edit` | Update User profile | ✅ |
+| `DELETE` | `/delete` | Delete User | ✅ |
+
 
 ### Deck Routes `/api/deck`
 
 | Method | Path | Description | Auth |
 |---|---|---|---|
-| `GET` | `/` | List all decks | ✅ |
-| `POST` | `/` | Create a new deck | ✅ |
+| `GET` | `/list` | List all decks | ✅ |
+| `POST` | `/create` | Create a new deck | ✅ |
 | `GET` | `/:id` | Get a deck by ID | ✅ |
 | `DELETE` | `/:id` | Delete a deck | ✅ |
-| `POST` | `/:id/endpoints` | Add endpoint to deck | ✅ |
-| `PUT` | `/:id/endpoints/:eid` | Update an endpoint | ✅ |
-| `DELETE` | `/:id/endpoints/:eid` | Remove an endpoint | ✅ |
+| `PUT` | `/:id` | Update a deck | ✅ |
 
 ### Mock Engine `/mock`
 
 | Method | Path | Description | Auth |
 |---|---|---|---|
-| `ALL` | `/:deckId/*` | Match and serve mock response | — |
+| `ALL` | `/` | Match and serve mock response | — |
 
 ### Log Routes `/api/log`
 
 | Method | Path | Description | Auth |
 |---|---|---|---|
-| `GET` | `/:deckId` | Fetch request logs for a deck | ✅ |
-| `GET` | `/:deckId/stream` | Open SSE stream for live logs | ✅ |
+| `GET` | `/recent/:username/:deckId` | Fetch request logs for a deck | ✅ |
+| `GET` | `/stream/:deckId` | Open SSE stream for live logs | ✅ |
 
 ---
 
