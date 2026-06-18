@@ -369,20 +369,51 @@ All routes are prefixed with `/api`.
 
 ## Screenshots
 
-<div align="center">
-### Login
-<img src="./frontend/assets/login.png" alt="Login Page" width="700" />
-### Register
-<img src="./frontend/assets/register.png" alt="Register Page" width="700" />
-### Forgot Password
-<img src="./frontend/assets/forgot-password.png" alt="Forgot Password Page" width="700" />
-### Dashboard
-<img src="./frontend/assets/dashboard.png" alt="Dashboard" width="700" />
-### Clean Dashboard
-<img src="./frontend/assets/clean_dashboard.png" alt="Clean Dashboard" width="700" />
-### Deck Designer
-<img src="./frontend/assets/deck_designer.png" alt="Deck Designer" width="700" />
-</div>
+To give you a better look at the platform, here are the core interfaces of API-Deck:
+
+### 🔐 Authentication Views
+A secure and unified access flow featuring credential validation, Google OAuth integration, and automated password recovery.
+
+<p align="center">
+  <img src="./assets/login.png" alt="Login Page" width="100%" />
+</p>
+<p align="center"><em>Login Interface</em></p>
+
+---
+
+<p align="center">
+  <img src="./assets/register.png" alt="Register Page" width="100%" />
+</p>
+<p align="center"><em>Registration Interface</em></p>
+
+---
+
+<p align="center">
+  <img src="./assets/forgot-password.png" alt="Forgot Password Page" width="100%" />
+</p>
+<p align="center"><em>Forgot Password Recovery</em></p>
+
+### 📊 Management & Design Panels
+Easily organize your API workspaces with user-isolated decks and build responsive pathways seamlessly.
+
+<p align="center">
+  <img src="./assets/dashboard.png" alt="Dashboard" width="100%" />
+</p>
+<p align="center"><em>Main Project Dashboard</em></p>
+
+---
+
+<p align="center">
+  <img src="./assets/clean_dashboard.png" alt="Clean Dashboard" width="100%" />
+</p>
+<p align="center"><em>Empty State / Clean Dashboard</em></p>
+
+---
+
+<p align="center">
+  <img src="./assets/deck_designer.png" alt="Deck Designer" width="100%" />
+</p>
+<p align="center"><em>Interactive Deck Designer & Live Logs Panel</em></p>
 
 ---
 
