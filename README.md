@@ -13,7 +13,7 @@
 [![MongoDB](https://img.shields.io/badge/MongoDB-Mongoose-47A248?style=flat-square&logo=mongodb&logoColor=white)](https://mongodb.com)
 [![Socket.IO](https://img.shields.io/badge/Socket.IO-4.x-010101?style=flat-square&logo=socket.io)](https://socket.io)
 
-[Live Demo](#) · [Report a Bug](https://github.com/mishrasourav-prog/api-desk/issues) · [Request a Feature](https://github.com/mishrasourav-prog/api-desk/issues)
+[Live Demo](https://api-desk-brown.vercel.app/) · [Report a Bug](https://github.com/mishrasourav-prog/api-desk/issues) · [Request a Feature](https://github.com/mishrasourav-prog/api-desk/issues)
 
 </div>
 
