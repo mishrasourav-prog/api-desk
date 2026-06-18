@@ -119,6 +119,13 @@ async function handleSave() {
             onClick={() => navigate("/app/dashboard")}
             className="px-4 py-2 border text-sm rounded-md text-[#8b949e]"
           >
+            Dashboard
+          </button>
+
+          <button
+            onClick={() => navigate("/app/dashboard")}
+            className="px-4 py-2 border text-sm rounded-md text-[#8b949e]"
+          >
             Cancel
           </button>
 
