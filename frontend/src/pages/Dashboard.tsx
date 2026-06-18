@@ -29,7 +29,6 @@ const filtered = decks.filter(deck => {
   return matchesSearch && matchesMethod;
 });
 
-useEffect(() => {
   const fetchDecks = async () => {
     try {
       const response = await getUserDecks();
@@ -40,21 +39,24 @@ useEffect(() => {
     }
   };
 
-  fetchDecks();
+useEffect(() => {
+fetchDecks();//can be a potential issue
 }, []);
 
 const handleDelete = async (id: string) => {
+  setDecks(prev => prev.filter(d => d._id !== id));
+
   try {
     const response = await deleteDeck(id);
 
-    if (response.data.success) {
-      setDecks(prev => prev.filter(d => d._id !== id));
+    if (!response?.success) {
+      throw new Error("Delete failed");
     }
   } catch (err) {
     console.error(err);
+    fetchDecks(); // rollback
   }
 };
-
  const handleOpen = (deck: Deck) => {
   navigate(`/app/designer/${deck._id}`);
 };

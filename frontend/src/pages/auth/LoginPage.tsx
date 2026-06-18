@@ -34,6 +34,7 @@ export default function LoginPage() {
   }
 
   async function handleSubmit(e: FormEvent) {
+    console.log("LOGIN CLICKED");
   e.preventDefault();
   if (!validate()) return;
 
