@@ -34,7 +34,7 @@
 - [Architecture Deep Dive](#architecture-deep-dive)
   - [Authentication Flow](#authentication-flow)
   - [Mock Engine](#mock-engine)
-  - [Real-time Log Streaming](#real-time-log-streaming)
+  - [Real-time Log Streaming via SSE](#real-time-log-streaming-via-sse)
   - [Validation Pipeline](#validation-pipeline)
 - [API Reference](#api-reference)
 - [Screenshots](#screenshots)
@@ -78,7 +78,6 @@ API-Deck gives you a **live, authenticated, per-user mock API** accessible over 
 ### 🛡️ Production-Grade Security
 - **JWT + HTTP-only Cookies** — Access tokens are never exposed to JavaScript. All private routes require a valid, unexpired token delivered via strict HTTP-only cookies.
 - **Google OAuth 2.0** — One-click social login via Passport.js with session bridging into the JWT pipeline.
-- **Email Verification Flow** — New registrations go through an OTP-based email verification gate before gaining full account access.
 - **Password Reset with OTP** — Secure, time-limited one-time passwords via Nodemailer/Resend for account recovery.
 - **Bcrypt Password Hashing** — All credentials stored with bcryptjs salted hashes; raw passwords never touch the database.
 
@@ -88,8 +87,8 @@ API-Deck gives you a **live, authenticated, per-user mock API** accessible over 
 - **Execution Sandboxing** — Mock response bodies are parsed and validated before being committed to storage, preventing malformed JSON from reaching disk.
 - **Per-user Deck Isolation** — Each user's endpoints are scoped under their own Deck. No data leakage between accounts.
 
-### 📡 Real-time Observability
-- **Live Request Logging via Socket.IO** — Every hit to a mock endpoint emits a real-time event. Watch incoming requests appear in the log stream the moment they fire, with method, path, timestamp, and status.
+### 📡 Real-time Observability via SSE
+- **Server-Sent Events Log Stream** — Every hit to a mock endpoint pushes a real-time event to the browser over a persistent SSE connection. Watch incoming requests appear in the log panel the moment they fire — method, path, timestamp, and status — with no polling and no WebSocket overhead.
 - **Persistent Request History** — All request logs are stored in MongoDB and retrievable per deck for audit and debugging.
 
 ### 🧪 Runtime Schema Validation
@@ -113,7 +112,7 @@ API-Deck gives you a **live, authenticated, per-user mock API** accessible over 
 | **Database** | MongoDB via Mongoose 9 |
 | **Auth** | JWT, HTTP-only Cookies, Passport.js, Google OAuth 2.0, bcryptjs |
 | **Validation** | Zod v4 |
-| **Real-time** | Socket.IO v4 |
+| **Real-time** | Server-Sent Events (SSE) |
 | **Email** | Nodemailer / Resend |
 | **HTTP Client** | Axios |
 
@@ -139,7 +138,7 @@ api-desk/
 │       ├── types/               # Shared TypeScript interfaces
 │       └── utils/               # apiError, apiHandler, storage helpers
 │
-└── server/                      # Express + Socket.IO API
+└── server/                      # Express API
     └── src/
         ├── config/              # DB connection
         ├── controllers/         # auth, deck, mockEngine, user controllers
@@ -161,7 +160,7 @@ api-desk/
 - **MongoDB** (local instance or [MongoDB Atlas](https://cloud.mongodb.com) free tier)
 - **npm** or **yarn**
 - A Google Cloud project with OAuth 2.0 credentials (optional, for social login)
-- A [Resend](https://resend.com) API key or SMTP credentials (for email flows)
+- A [Resend](https://resend.com) API key or SMTP credentials (for password reset emails)
 
 ### Installation
 
@@ -254,10 +253,8 @@ Registration
   └─► POST /api/auth/register
         └─► Zod validation
         └─► Hash password (bcryptjs)
-        └─► Save PendingUser + send OTP email
-        └─► POST /api/auth/verify-email (OTP)
-              └─► Promote PendingUser → User
-              └─► Issue JWT → set HTTP-only cookie
+        └─► Save User to database
+        └─► Issue JWT → set HTTP-only cookie
 
 Login
   └─► POST /api/auth/login
@@ -272,6 +269,8 @@ Protected Routes
 
 Google OAuth follows Passport.js's standard OAuth 2.0 callback flow, ultimately issuing the same JWT cookie on successful authentication.
 
+Password recovery uses a time-limited OTP sent to the user's registered email address via Nodemailer/Resend.
+
 ### Mock Engine
 
 Each user creates one or more **Decks**. A Deck is a named collection of endpoints. When an endpoint is called:
@@ -281,20 +280,31 @@ Incoming request
   └─► GET /mock/:deckId/users/profile
         └─► Look up Deck by ID
         └─► Match path + method against stored endpoints
-        └─► Emit log event via Socket.IO (logEmitter.ts)
+        └─► Push log event via SSE (logEmitter.ts)
         └─► Persist RequestLog to MongoDB
         └─► Return stored mock response body
 ```
 
 Paths are sanitized on write — the middleware ensures structural correctness (forward slash prefix, no trailing slashes, no double slashes) before the endpoint is stored.
 
-### Real-time Log Streaming
+### Real-time Log Streaming via SSE
 
-The `LogStream` component in the frontend connects to the Socket.IO server on mount and listens for log events scoped to the active deck ID. As requests arrive at the mock engine, `logEmitter.ts` broadcasts them to the relevant room. The frontend log panel updates in real-time without polling.
+API-Deck uses **Server-Sent Events** for push-based log delivery — a lightweight, native HTTP alternative to WebSockets that requires no additional protocol or library.
 
 ```
-Client curl → Mock route → logEmitter.emit(deckId, logPayload) → Socket.IO room → React UI
+Client curl → Mock route → logEmitter.ts → SSE stream → LogStream component → React UI
 ```
+
+When the `LogStream` component mounts, it opens a persistent `EventSource` connection to the backend scoped to the active deck ID. Each time a request hits the mock engine, the server pushes a log event down the open stream. The frontend panel updates instantly — no polling, no reconnect logic, no WebSocket handshake.
+
+**Why SSE over WebSockets here?**
+
+| | SSE | WebSockets |
+|---|---|---|
+| Direction | Server → Client only | Bidirectional |
+| Protocol | Plain HTTP | Upgraded connection |
+| Reconnect | Automatic (browser handles it) | Manual |
+| Fit for log streaming | ✅ Perfect | Overkill |
 
 ### Validation Pipeline
 
@@ -321,7 +331,6 @@ All routes are prefixed with `/api`.
 | Method | Path | Description | Auth |
 |---|---|---|---|
 | `POST` | `/register` | Register a new account | — |
-| `POST` | `/verify-email` | Verify OTP from email | — |
 | `POST` | `/login` | Login with email + password | — |
 | `POST` | `/logout` | Clear auth cookie | ✅ |
 | `POST` | `/forgot-password` | Send password reset OTP | — |
@@ -361,6 +370,7 @@ All routes are prefixed with `/api`.
 | Method | Path | Description | Auth |
 |---|---|---|---|
 | `GET` | `/:deckId` | Fetch request logs for a deck | ✅ |
+| `GET` | `/:deckId/stream` | Open SSE stream for live logs | ✅ |
 
 ---
 
