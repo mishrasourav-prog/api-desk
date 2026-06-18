@@ -3,6 +3,7 @@ import { Request,Response, NextFunction } from "express";
 import { User } from "../models/user.model";
 import { ApiResponse } from "../utils/apiResponse";
 import { ApiError } from "../utils/apiError";
+import { RequestLog } from "../models/requestLog.model";
 
 export const createDeck = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -88,6 +89,7 @@ export const getUserDecks = async (req: Request, res: Response, next: NextFuncti
 
 
 export const deleteDeck = async (req: Request, res: Response, next: NextFunction) => {
+  console.log("DELETE CONTROLLER REACHED");
   try {
     const { id } = req.params;
 
@@ -101,17 +103,41 @@ export const deleteDeck = async (req: Request, res: Response, next: NextFunction
       return next(new ApiError(404, "User not found"));
     }
 
-    const deletedDeck = await Deck.findOneAndDelete({
-      _id: id,
-      creator: userData.username,
-    });
 
-    if (!deletedDeck) {
+  
+
+    const deletedDeck = await Deck.findOne({
+  _id: id,
+  creator: userData.username,
+});
+
+ if (!deletedDeck) {
       return next(new ApiError(
         404,
         "Deck not found or you do not have permission to delete it"
       ));
     }
+
+
+console.log(deletedDeck);
+
+const matchingLogs = await RequestLog.find({
+  deckId: deletedDeck._id,
+
+
+});
+
+console.log(matchingLogs);
+
+
+   
+    await RequestLog.deleteMany({
+  deckId: deletedDeck._id,
+});
+
+await Deck.deleteOne({
+  _id: deletedDeck._id,
+});
 
     return res.status(200).json(
       new ApiResponse({
